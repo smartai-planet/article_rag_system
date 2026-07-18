@@ -222,49 +222,47 @@ def streamlit_app():
     
     st.sidebar.image("./llm_bot.jpg")
 
+    
     #Adding Footer text
-    footer="""<style>
-    a:link , a:visited{
-    color: blue;
-    background-color: transparent;
-    text-decoration: underline;
+    footer = """
+    <style>
+    a:link, a:visited {
+        color: blue;
+        text-decoration: underline;
     }
     
-    a:hover,  a:active {
-    color: red;
-    background-color: transparent;
-    text-decoration: underline;
+    a:hover, a:active {
+        color: red;
+        text-decoration: underline;
     }
     
     .footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: white;
-    color: black;
-    text-align: center;
-    z-index: 9999;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background: white;
+        color: black;
+        text-align: center;
+        padding: 10px;
+        z-index: 9999;
     }
     </style>
+    
     <div class="footer">
-    <p>
-    Developed with ❤ by
-    <a href="https://github.com/ikenna-oluigbo/" target="_blank">
-        Ikenna Oluigbo (PhD)
-    </a>
-    </p>
+        <p>
+            Developed with ❤ by
+            <a href="https://github.com/ikenna-oluigbo/" target="_blank">
+                Ikenna Oluigbo (PhD)
+            </a>
+        </p>
     </div>
     """
-    st.markdown(footer,  """
-    <style>
-    .main {
-        padding-bottom: 80px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+
+    st.markdown(footer, unsafe_allow_html=True)
     
 
+    #Beginning PDF RAG Ingestion
     st.write("#PDF Ingestion - RAG Knowledge Base ")
 
     if "pdf_docs" not in st.session_state:
