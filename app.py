@@ -247,7 +247,7 @@ def streamlit_app():
     }
     </style>
     <div class="footer">
-    <p>Developed with ❤ by <a style='display: block; text-align: center; target="_blank">Ikenna Oluigbo (PhD)</a></p>
+    <p>Developed with ❤ by <a style='display: block; text-align: center;' target="_blank">Ikenna Oluigbo (PhD)</a></p>
     </div>
     """
     st.markdown(footer,unsafe_allow_html=True)
