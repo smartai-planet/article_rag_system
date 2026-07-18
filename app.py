@@ -244,13 +244,25 @@ def streamlit_app():
     background-color: white;
     color: black;
     text-align: center;
+    z-index: 9999;
     }
     </style>
     <div class="footer">
-    <p>Developed with ❤ by <a style='display: block; text-align: center;' href="https://www.github.com/ikenna-oluigbo/" target="_blank">Heflin Stephen Raj S</a></p>
+    <p>
+    Developed with ❤ by
+    <a href="https://github.com/ikenna-oluigbo/" target="_blank">
+        Ikenna Oluigbo (PhD)
+    </a>
+    </p>
     </div>
     """
-    st.markdown(footer,unsafe_allow_html=True)
+    st.markdown(footer,  """
+    <style>
+    .main {
+        padding-bottom: 80px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
 
     st.write("#PDF Ingestion - RAG Knowledge Base ")
