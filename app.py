@@ -10,10 +10,9 @@ import chromadb
 import streamlit as st 
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction, OllamaEmbeddingFunction
 import time
-from ap_keys import my_api_key
 
 
-OPENAI_API_KEY, _ = my_api_key()
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
 pdfupload_path = "./pdf_files/"
 
