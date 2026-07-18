@@ -1,4 +1,5 @@
-# Contact me on planet4free@gmail.com 
+# Creator: Ikenna Oluigbo
+# Contact me on callme-smartai@proton.me 
 # Program to analyze document, summarize, and provide chat responses. ALSO, Project to suggest related articles online
 
 #Importing Libraries 
@@ -221,6 +222,37 @@ def streamlit_app():
     
     st.sidebar.image("./llm_bot.jpg")
 
+    #Adding Footer text
+    footer="""<style>
+    a:link , a:visited{
+    color: blue;
+    background-color: transparent;
+    text-decoration: underline;
+    }
+    
+    a:hover,  a:active {
+    color: red;
+    background-color: transparent;
+    text-decoration: underline;
+    }
+    
+    .footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    color: black;
+    text-align: center;
+    }
+    </style>
+    <div class="footer">
+    <p>Developed with ❤ by <a style='display: block; text-align: center; target="_blank">Ikenna Oluigbo (PhD)</a></p>
+    </div>
+    """
+    st.markdown(footer,unsafe_allow_html=True)
+    
+
     st.write("#PDF Ingestion - RAG Knowledge Base ")
 
     if "pdf_docs" not in st.session_state:
@@ -284,8 +316,10 @@ def streamlit_app():
             st.write(f"- {title}")
 
     # Query input
-    st.text("▶️ To download images from the documents, type images ")
-    st.text("▶️ To search for related papers online, type papers ")
+    st.text("=== QUERY OPTIONS ===")
+    st.text("▶️ Type your questions to query the knowledge base of your uploaded articles ")
+    st.text("▶️ If you wish to download all images from the articles, type images ")
+    st.text("▶️ If you want the system to find related articles to the ones you uploaded, type papers ")
     
     
     query = st.text_input(
