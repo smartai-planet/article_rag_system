@@ -1,8 +1,7 @@
 import requests
-from ap_keys import my_api_key
 import streamlit as st
 
-_, CORE_API_KEY = my_api_key()
+CORE_API_KEY = st.secrets["CORE_API_KEY"]
 
 
 def search_core_papers(query=None, year_from=2010, max_results=20):
