@@ -147,7 +147,6 @@ def read_pdf_title(pdfupload_path):
         # Adjust threshold based on your PDF's font sizes
         filtered_page = page.filter(lambda x: x.get("size", 0) > 12)
         title = filtered_page.extract_text()
-        #all_titles.append(title)
         print(f"Heuristic Title: {title}")
     
     return title
@@ -165,8 +164,7 @@ def read_pdf_image(pdfupload_path):
             base_image = doc.extract_image(xref)
             image_bytes = base_image["image"]
             image_ext = base_image["ext"]
-            # with open(f"image_{page_num}.{image_ext}", "wb") as f:
-            #     f.write(image_bytes)
+        
             temp_bytes.append(image_bytes)
             temp_ext.append(image_ext)
             
@@ -176,7 +174,6 @@ def read_pdf_image(pdfupload_path):
 #Split Text and assign ID
 def split_text_id(docs):
     messages_with_id = dict()
-    #texts = read_pdfuploaded_text()
     chunks = make_chunks(texts=docs, chunk_size=1000, chunk_overlap=200)
     for i, chunk in enumerate(chunks):
         idx = i + 1
@@ -431,7 +428,6 @@ def streamlit_app():
             
             # Crete download button for each image
             for i in range(len(all_ext)):
-                #print(type(bytes(qimg[0])))
                 st.download_button(
                         label="Download Image",
                         data=bytes(all_bytes[i]),
