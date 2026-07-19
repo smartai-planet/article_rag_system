@@ -353,133 +353,134 @@ def streamlit_app():
     
         st.write(f"All {len(uploaded_files)} files processed successfully! ✅")  
 
-    except ValueError:
-        st.write(f"{len(uploaded_files)} uploaded. Session ended. Please refresh page to start a new session")
-    
-    analyzed_documents = " ".join(all_documents)            #Merge all strings into one
-
-
-    # Initialize session state
-    if "initialized" not in st.session_state:
-        st.session_state.initialized = False    
         
-        st.session_state.facts = split_text_id(analyzed_documents)
-
-        # Initialize models
-        st.session_state.llm_model = LLMModel(llm_type)
-        st.session_state.embedding_model = EmbeddingModel(embedding_type)
-
-        # Setup ChromaDB
-        documents = st.session_state.facts         #Input text is a dictionary with keys and values
-        st.session_state.collection = setup_chromadb(
-            documents, st.session_state.embedding_model
-        )
-        st.session_state.initialized = True
-
-    # If models changed, reinitialize
-    if (
-          
-        st.session_state.llm_model.model_type != llm_type
-        or st.session_state.embedding_model.model_type != embedding_type
-    ):
-        st.session_state.llm_model = LLMModel(llm_type)
-        st.session_state.embedding_model = EmbeddingModel(embedding_type)
-        documents = st.session_state.facts
-        st.session_state.collection = setup_chromadb(
-            documents, st.session_state.embedding_model
-        )
-
-    # Display uploaded documents
-    st.session_state.titles = all_titles
-    
-    with st.expander("📚 Available Documents in RAG Knowledge base", expanded=False):
-        for title in st.session_state.titles:
-            st.write(f"- {title}")
-
-    # Query input
-    st.text("=== QUERY OPTIONS ===")
-    st.text("▶️ Type your questions to query the knowledge base of your uploaded articles ")
-    st.text("▶️ If you wish to download all images from the articles, type images ")
-    st.text("▶️ If you want the system to find related articles to the ones you uploaded, type papers ")
+        analyzed_documents = " ".join(all_documents)            #Merge all strings into one
     
     
-    query = st.text_input(
-        "Enter your Query:",
-        placeholder="Query the knowledge base for response ...",
-    )
-
-    if query:
+        # Initialize session state
+        if "initialized" not in st.session_state:
+            st.session_state.initialized = False    
             
-        if query == "papers".lower():
-            st.text("🧠 Exporing my Knowledge Base ...")
-            from search_articles_streamlit import execute_search_papers
-            query_titles = all_titles
-            
-            for title in query_titles:
-                tar = title.split(" ")[:10]
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.text("🔎 " + " ".join(tar))
-                with col2:
-                    execute_search_papers(" ".join(tar))
-            
-        elif query == "images".lower():
-            all_bytes = list() ; all_ext = list()
-            for file_path in session_dir.iterdir():
-                temp_bytes, temp_exts = read_pdf_image(file_path)
-                all_bytes.extend(temp_bytes)
-                all_ext.extend(temp_exts)
-            
-            # Crete download button for each image
-            for i in range(len(all_ext)):
-                st.download_button(
-                        label="Download Image",
-                        data=bytes(all_bytes[i]),
-                        file_name=f"image_{i}.{all_ext[i]}",
-                        mime=f"image/{all_ext[i]}"
-                    )
-            st.text("All Images Processed Successfully! 😎")  
+            st.session_state.facts = split_text_id(analyzed_documents)
+    
+            # Initialize models
+            st.session_state.llm_model = LLMModel(llm_type)
+            st.session_state.embedding_model = EmbeddingModel(embedding_type)
+    
+            # Setup ChromaDB
+            documents = st.session_state.facts         #Input text is a dictionary with keys and values
+            st.session_state.collection = setup_chromadb(
+                documents, st.session_state.embedding_model
+            )
+            st.session_state.initialized = True
+    
+        # If models changed, reinitialize
+        if (
+              
+            st.session_state.llm_model.model_type != llm_type
+            or st.session_state.embedding_model.model_type != embedding_type
+        ):
+            st.session_state.llm_model = LLMModel(llm_type)
+            st.session_state.embedding_model = EmbeddingModel(embedding_type)
+            documents = st.session_state.facts
+            st.session_state.collection = setup_chromadb(
+                documents, st.session_state.embedding_model
+            )
+    
+        # Display uploaded documents
+        st.session_state.titles = all_titles
         
-        else: 
-            with st.spinner("Processing your query..."):
-                augmented_prompt = augment_prompt(
-                    query, find_related_chunks(
-                                    query, st.session_state.collection)
-                    )
+        with st.expander("📚 Available Documents in RAG Knowledge base", expanded=False):
+            for title in st.session_state.titles:
+                st.write(f"- {title}")
+    
+        # Query input
+        st.text("=== QUERY OPTIONS ===")
+        st.text("▶️ Type your questions to query the knowledge base of your uploaded articles ")
+        st.text("▶️ If you wish to download all images from the articles, type images ")
+        st.text("▶️ If you want the system to find related articles to the ones you uploaded, type papers ")
+        
+        
+        query = st.text_input(
+            "Enter your Query:",
+            placeholder="Query the knowledge base for response ...",
+        )
+    
+        if query:
                 
-                response, references = rag_pipeline(
-                    query, st.session_state.collection, st.session_state.llm_model
-                )
+            if query == "papers".lower():
+                st.text("🧠 Exporing my Knowledge Base ...")
+                from search_articles_streamlit import execute_search_papers
+                query_titles = all_titles
+                
+                for title in query_titles:
+                    tar = title.split(" ")[:10]
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.text("🔎 " + " ".join(tar))
+                    with col2:
+                        execute_search_papers(" ".join(tar))
+                
+            elif query == "images".lower():
+                all_bytes = list() ; all_ext = list()
+                for file_path in session_dir.iterdir():
+                    temp_bytes, temp_exts = read_pdf_image(file_path)
+                    all_bytes.extend(temp_bytes)
+                    all_ext.extend(temp_exts)
+                
+                # Crete download button for each image
+                for i in range(len(all_ext)):
+                    st.download_button(
+                            label="Download Image",
+                            data=bytes(all_bytes[i]),
+                            file_name=f"image_{i}.{all_ext[i]}",
+                            mime=f"image/{all_ext[i]}"
+                        )
+                st.text("All Images Processed Successfully! 😎")  
+            
+            else: 
+                with st.spinner("Processing your query..."):
+                    augmented_prompt = augment_prompt(
+                        query, find_related_chunks(
+                                        query, st.session_state.collection)
+                        )
+                    
+                    response, references = rag_pipeline(
+                        query, st.session_state.collection, st.session_state.llm_model
+                    )
+    
+                    # Display results in columns
+                    col1, col2 = st.columns(2)
+    
+                    with col1:
+                        st.markdown("### 🤖 Response")
+                        st.write(response)
+    
+                    with col2:
+                        st.markdown("### 📖 References Used")
+                        for ref in references:
+                            st.write(f"- {ref}")
+    
+                    # Show technical details in expander
+                    with st.expander("🔍 Technical Details", expanded=False):
+                        st.markdown("#### Augmented Prompt")
+                        st.code(augmented_prompt)
+    
+                        st.markdown("#### Model Configuration")
+                        st.write(f"- LLM Model: {llm_type.upper()}")
+                        st.write(f"- Embedding Model: {embedding_type.upper()}")
+    
+    
+        st.write("⚠️⚠️ Click the button below only after all your analysis. Clicking it deletes your uploaded files and closes your session. ⚠️⚠️")
+        if st.button("End Analysis and Delete Files"):
+            dest = move_to_permanent_storage(session_dir)
+            st.success(f"Files archived to {dest}. Temp folder removed.")
+            # Optional: reset session id so a fresh temp folder is made
+            # if the user uploads more files in the same browser tab
+            del st.session_state["session_id"]
 
-                # Display results in columns
-                col1, col2 = st.columns(2)
-
-                with col1:
-                    st.markdown("### 🤖 Response")
-                    st.write(response)
-
-                with col2:
-                    st.markdown("### 📖 References Used")
-                    for ref in references:
-                        st.write(f"- {ref}")
-
-                # Show technical details in expander
-                with st.expander("🔍 Technical Details", expanded=False):
-                    st.markdown("#### Augmented Prompt")
-                    st.code(augmented_prompt)
-
-                    st.markdown("#### Model Configuration")
-                    st.write(f"- LLM Model: {llm_type.upper()}")
-                    st.write(f"- Embedding Model: {embedding_type.upper()}")
-
-
-    st.write("⚠️⚠️ Click the button below only after all your analysis. Clicking it deletes your uploaded files and closes your session. ⚠️⚠️")
-    if st.button("End Analysis and Delete Files"):
-        dest = move_to_permanent_storage(session_dir)
-        st.success(f"Files archived to {dest}. Temp folder removed.")
-        # Optional: reset session id so a fresh temp folder is made
-        # if the user uploads more files in the same browser tab
-        del st.session_state["session_id"]
-
+    except ValueError:
+        st.write(f"{len(uploaded_files)} files uploaded. Session ended. Please refresh page to start a new session")
+        
 if __name__ == "__main__":
     streamlit_app()
