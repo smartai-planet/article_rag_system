@@ -55,9 +55,6 @@ def search_core_papers(query=None, year_from=2010, max_results=20):
 
 def execute_search_papers(keywords):
     
-    # Replace with your actual CORE API key
-    #CORE_API_KEY = CORE_API_KEY
-    
     # Search for papers published from 2010 onwards
     papers = search_core_papers(query=keywords, year_from=2010, max_results=20)
     
