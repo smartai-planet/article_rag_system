@@ -322,35 +322,39 @@ def streamlit_app():
     if "pdf_docs" not in st.session_state:
         st.session_state.pdf_docs = []
 
-    uploaded_files = st.file_uploader("""Upload ONLY PDF Files. You can upload one or more files (Upload within 60 seconds)""", 
-                                    type="pdf", 
-                                    accept_multiple_files=True,
-                                    max_upload_size=10)    #MB
 
-        
-    if uploaded_files:
-        for uploaded_file in uploaded_files:
-            save_path = session_dir / uploaded_file.name
-            with open(save_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-        st.success(f"Saved {len(uploaded_files)} file(s) to your private session folder.")
-        
-        
-        # --- Do your PDF analysis here, reading from session_dir ---
-        all_titles = list() 
-        for file_path in session_dir.iterdir():
-            st.write(f"Analyzing: {file_path.name}")
-            temp_doc = read_pdfuploaded_text(file_path)
-            all_documents.extend(temp_doc)
-            
-            t = read_pdf_title(file_path)
-            all_titles.append(t)    
-             
-                
-    time.sleep(70)
-
-    st.write(f"All {len(uploaded_files)} files processed successfully! ✅")  
+    try:
+        uploaded_files = st.file_uploader("""Upload ONLY PDF Files. You can upload one or more files (Upload within 60 seconds)""", 
+                                        type="pdf", 
+                                        accept_multiple_files=True,
+                                        max_upload_size=10)    #MB
     
+            
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                save_path = session_dir / uploaded_file.name
+                with open(save_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+            st.success(f"Saved {len(uploaded_files)} file(s) to your private session folder.")
+            
+            
+            # --- Do your PDF analysis here, reading from session_dir ---
+            all_titles = list() 
+            for file_path in session_dir.iterdir():
+                st.write(f"Analyzing: {file_path.name}")
+                temp_doc = read_pdfuploaded_text(file_path)
+                all_documents.extend(temp_doc)
+                
+                t = read_pdf_title(file_path)
+                all_titles.append(t)    
+                 
+                    
+        time.sleep(70)
+    
+        st.write(f"All {len(uploaded_files)} files processed successfully! ✅")  
+
+    except ValueError:
+        st.write(f"{len(uploaded_files)} uploaded. Session ended. Please refresh page to start a new session")
     
     analyzed_documents = " ".join(all_documents)            #Merge all strings into one
 
