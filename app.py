@@ -346,13 +346,11 @@ def streamlit_app():
                 all_documents.extend(temp_doc)
                 
                 t = read_pdf_title(file_path)
-                all_titles.append(t)    
-                 
-                    
+                all_titles.append(t)  
+            
+            st.write(f"All {len(uploaded_files)} files processed successfully! ✅")  
+             
         time.sleep(70)
-    
-        st.write(f"All {len(uploaded_files)} files processed successfully! ✅")  
-
         
         analyzed_documents = " ".join(all_documents)            #Merge all strings into one
     
