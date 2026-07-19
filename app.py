@@ -412,7 +412,7 @@ def streamlit_app():
             query_titles = all_titles
             
             for title in query_titles:
-                tar = title.split(" ")[:7]
+                tar = title.split(" ")[:10]
                 col1, col2 = st.columns(2)
                 with col1:
                     st.text("🔎 " + " ".join(tar))
