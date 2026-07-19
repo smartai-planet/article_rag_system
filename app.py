@@ -24,7 +24,7 @@ OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 # ---- Config ----
 BASE_TMP_DIR = Path(tempfile.gettempdir()) / "myapp_sessions"
 PERMANENT_DIR = Path("permanent_uploads")  # where finished files end up
-MAX_SESSION_AGE_SECONDS = 60 * 60  # delete abandoned temp folders after 1 hour
+MAX_SESSION_AGE_SECONDS = 0.5 * 60 * 60  # delete abandoned temp folders after 1 hour
 
 BASE_TMP_DIR.mkdir(parents=True, exist_ok=True)
 PERMANENT_DIR.mkdir(parents=True, exist_ok=True)
