@@ -17,11 +17,8 @@ import shutil
 import uuid
 from pathlib import Path
 
-from ap_keys import my_api_key
 
-
-#OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-OPENAI_API_KEY, _ = my_api_key()
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
 
 # ---- Config ----
