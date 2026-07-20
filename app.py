@@ -256,8 +256,8 @@ def streamlit_app():
     st.subheader("- Analyze your document(s) and embed your document(s) in a vector store through series of structured processes")
     st.subheader("- Provide semantic search & Maximal Marginal Relevance functionality through querying Smart Article, providing smart responses. Just ask whatever query, and you get a response!")
     st.subheader("- Responses are entirely based on the uploaded document(s), references from what part of the document the responses was derived from is also provided")
-    st.subheader(f"- Provide the ability to crawl the web and provide up to 20 other articles related to the document(s) uploaded, with download links. Just use the keyword: {st.markdown(*papers*)}")
-    st.subheader(f"- Provide the ability to extract all images from the document(s) uploaded, providing a download button. Just use the keyword: {st.markdown(*images*)}")
+    st.subheader(f"- Provide the ability to crawl the web and provide up to 20 other articles related to the document(s) uploaded, with download links. Just use the keyword: {st.write(_papers_)}")
+    st.subheader(f"- Provide the ability to extract all images from the document(s) uploaded, providing a download button. Just use the keyword: {st.write(_images_)}")
     st.subheader("- Provide the opportunity to choose between different Model and Embedding Architectures")
        
 
