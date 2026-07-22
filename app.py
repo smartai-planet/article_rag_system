@@ -453,8 +453,8 @@ def streamlit_app():
                         )
                     
                     response, references = rag_pipeline(
-                        query, st.session_state.collection, st.session_state.llm_model
-                    )
+                        augmented_prompt, st.session_state.collection, st.session_state.llm_model
+                    )    #query
     
                     # Display results in columns
                     col1, col2 = st.columns(2)
