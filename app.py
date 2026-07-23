@@ -349,7 +349,8 @@ def streamlit_app():
             
             # --- Do your PDF analysis here, reading from session_dir ---
             all_titles = list() 
-            for file_path in session_dir.iterdir():
+            #for file_path in session_dir.iterdir():
+            for file_path in save_path.iterdir():
                 st.write(f"Analyzing: {file_path.name}")
                 temp_doc = read_pdfuploaded_text(file_path)
                 all_documents.extend(temp_doc)
