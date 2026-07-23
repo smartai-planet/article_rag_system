@@ -60,20 +60,22 @@ class EmbeddingModel:
             self.embedding_fn = OpenAIEmbeddingFunction(
                 api_key=OPENAI_API_KEY,
                 model_name="text-embedding-3-small", 
-                dimensions=768
+                dimensions=768        #1536
             )
             
         elif model_type == "ollama_local":
             self.embedding_fn = OllamaEmbeddingFunction(
                 url="http://localhost:11434", 
-                model_name="qwen3-embedding"
+                model_name="qwen3-embedding",
+                #dimensions=384
             )
         
         elif model_type == "ollama_openai":
             self.embedding_fn = OpenAIEmbeddingFunction(
                 api_key="ollama",
                 api_base="http://localhost:11434/v1",
-                model_name="nomic-embed-text"
+                model_name="nomic-embed-text",
+                #dimensions=768
             )    
 
 
@@ -349,8 +351,7 @@ def streamlit_app():
             
             # --- Do your PDF analysis here, reading from session_dir ---
             all_titles = list() 
-            #for file_path in session_dir.iterdir():
-            for file_path in save_path.iterdir():
+            for file_path in session_dir.iterdir():
                 st.write(f"Analyzing: {file_path.name}")
                 temp_doc = read_pdfuploaded_text(file_path)
                 all_documents.extend(temp_doc)
