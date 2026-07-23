@@ -486,8 +486,10 @@ def streamlit_app():
             # if the user uploads more files in the same browser tab
             del st.session_state["session_id"]
 
+    # No files uploaded. End active session
     except ValueError:
         st.write(f"{len(uploaded_files)} files uploaded. Session ended. Please refresh page to start a new session")
+        del st.session_state["session_id"]
         
 if __name__ == "__main__":
     streamlit_app()
