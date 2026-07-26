@@ -5,3 +5,4 @@ chromadb==1.5.9
 pandas==2.3.3
 streamlit==1.59.2
 requests==2.34.2
+streamlit-js-eval==1.0.0
