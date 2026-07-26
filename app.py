@@ -8,7 +8,8 @@ import pdfplumber
 from openai import OpenAI
 import os
 import chromadb
-import streamlit as st 
+import streamlit as st
+from streamlit_js_eval import streamlit_js_eval
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction, OllamaEmbeddingFunction
 import time
 
@@ -60,23 +61,17 @@ class EmbeddingModel:
             self.embedding_fn = OpenAIEmbeddingFunction(
                 api_key=OPENAI_API_KEY,
                 model_name="text-embedding-3-small", 
-                dimensions=768        #1536
-            )
-            
-        elif model_type == "ollama_local":
-            self.embedding_fn = OllamaEmbeddingFunction(
-                url="http://localhost:11434", 
-                model_name="qwen3-embedding",
-                #dimensions=384
+                dimensions=1536
             )
         
-        elif model_type == "ollama_openai":
+        else: 
+            model_type == "ollama_Nomic"
             self.embedding_fn = OpenAIEmbeddingFunction(
                 api_key="ollama",
                 api_base="http://localhost:11434/v1",
                 model_name="nomic-embed-text",
-                #dimensions=768
-            )    
+                dimensions=768
+            )       
 
 
 def cleanup_stale_sessions(max_age_seconds: int = MAX_SESSION_AGE_SECONDS):
@@ -114,27 +109,49 @@ def move_to_permanent_storage(session_dir: Path):
 
 
 # Function to split text
-def make_chunks(texts : list, chunk_size: int = 1000, chunk_overlap: int = 200):
+def make_chunks(texts : str, pdf_file, chunk_size: int = 1000, chunk_overlap: int = 200):
+    """Splitting the texts into chunks"""
+    
     chunks = []
     start = 0
     while start < len(texts):
         end = start + chunk_size
-        chunks.append(texts[start:end])
-        start = end - chunk_overlap
+        
+        #If not beginning from start, include overlap
+        if start > 0:
+            start = start - chunk_overlap
+        
+        chunk = texts[start:end]
+        
+        #Try to break at end of sentence to preserve full paragraph context
+        if end < len(texts):
+            last_period = chunk.rfind(".")
+            if last_period != -1:
+                chunk = chunk[ : last_period + 1]
+                end = start + last_period + 1
+                
+        
+        chunks.append(
+            {"id" : str(uuid.uuid4()),
+             "text" : chunk,
+             "metadata" : {"source": pdf_file.name}
+             }
+        )
+        
+        start = end
     
     return chunks
 
 
 # Function to parse pdf texts
 def read_pdfuploaded_text(pdfupload_path):
-    temp_doc = []
+    temp_doc = ""
     #for pdf in os.listdir(pdfupload_path):
     doc = fitz.open(pdfupload_path)
     print(f"Total lenght of Document Pages: {len(doc)} ")
     for i in range(len(doc)):
         curr_page = doc[i]
-        text = [curr_page.get_text()]
-        temp_doc.extend(text)
+        temp_doc = temp_doc + curr_page.get_text() + "\n"
     
     return temp_doc
 
@@ -174,14 +191,14 @@ def read_pdf_image(pdfupload_path):
         
         
 #Split Text and assign ID
-def split_text_id(docs):
-    messages_with_id = dict()
-    chunks = make_chunks(texts=docs, chunk_size=1000, chunk_overlap=200)
-    for i, chunk in enumerate(chunks):
-        idx = i + 1
-        messages_with_id[str(idx)] = chunk
+# def split_text_id(docs):
+#     messages_with_id = dict()
+#     chunks = make_chunks(texts=docs, chunk_size=1000, chunk_overlap=200)
+#     for i, chunk in enumerate(chunks):
+#         idx = i + 1
+#         messages_with_id[str(idx)] = chunk
     
-    return messages_with_id
+#     return messages_with_id
 
 
 def setup_chromadb(texts, embedding_model):
@@ -194,13 +211,15 @@ def setup_chromadb(texts, embedding_model):
         name=collection_name, 
         embedding_function=embedding_model.embedding_fn
     )
+        
+    # ids = list(texts.keys())
+    # documents = list(texts.values())
     
+    for doc in texts:
     
-    ids = list(texts.keys())
-    documents = list(texts.values())
-    
-    collection.add(ids=ids,
-                      documents=documents)
+        collection.add(ids=doc["id"],
+                      documents=doc["text"],
+                    metadatas=doc["metadata"])
    
     print("\nDocuments added to ChromaDB collection successfully!")
     return collection
@@ -231,10 +250,15 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
     
     response = llm_model.generate_completion(
         [
-        {"role": "system", "content": f"""You are a very smart and assistant.
+        {"role": "system", "content": f"""You are a very smart assistant.
                     You can are very knowledgeable and can effectively answer any question from within the context information, or just about any question. 
-                    You answers questions that are directly related to the sources/documents given, but can also be to add more knowledge to the source document. 
-                    Use your base knowledge and the context information in {augmented_prompt} to answer questions"""},
+                    You answer questions that are directly related to the full contexts given. 
+                    To answer questions, first rigorously consult all the context information in {augmented_prompt}.
+                    Let your response be based only on the context information in {augmented_prompt}.
+                    Occassionally, if you are asked questions outside the context, first try to answer based on context information in {augmented_prompt}.
+                    If the answer is not in the context information, you may then use your base knowledge to answer the question. 
+                    When you use your base knowledge, inform the user that the answer is not found in context information and that you are pulling response from your knowledge base"""},
+        
         {"role": "user", "content": query}
         ]
     )
@@ -273,12 +297,18 @@ def streamlit_app():
 
     embedding_type = st.sidebar.radio(
         "Select Embedding Model:",
-        ["openai", "ollama_local", "ollama_openai"],
+        ["openai", "ollama_Nomic"],
         format_func=lambda x: {
             "openai": "OpenAI Embeddings (Most Stable)",
-            "ollama_local": "Qwen3 Embedding (Ollama)",
-            "ollama_openai": "Nomic Embed Text (Ollama) (Stable)",
+            "ollama_Nomic": "Nomic Embed Text (Ollama)",
         }[x],
+    )
+
+
+    st.sidebar.write(
+        f"\nCurrent Embedding Model:\n",
+        f"- Name: {" ".join(embedding_type.split("_")).upper()}\n",
+        f"- Dimensions: {EmbeddingModel(embedding_type).embedding_fn.dimensions}"
     )
     
     st.sidebar.image("./llm_bot.jpg")
@@ -312,10 +342,11 @@ def streamlit_app():
     
     <div class="footer">
         <p>
-            Developed with ❤ by
+            Developed by
             <a href="https://github.com/ikenna-oluigbo/" target="_blank">
-                Ikenna Oluigbo (PhD)
+                Ikenna Oluigbo (PhD).
             </a>
+            Drop a feedback!
         </p>
     </div>
     """
@@ -354,23 +385,26 @@ def streamlit_app():
             for file_path in session_dir.iterdir():
                 st.write(f"Analyzing: {file_path.name}")
                 temp_doc = read_pdfuploaded_text(file_path)
-                all_documents.extend(temp_doc)
+                
+                chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
+                all_documents.extend(chunks)
                 
                 t = read_pdf_title(file_path)
                 all_titles.append(t)  
             
-            st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")  
              
         time.sleep(70)
+
+        st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅") 
         
-        analyzed_documents = " ".join(all_documents)            #Merge all strings into one
+        # analyzed_documents = " ".join(all_documents)            #Merge all strings into one
     
     
         # Initialize session state
         if "initialized" not in st.session_state:
             st.session_state.initialized = False    
             
-            st.session_state.facts = split_text_id(analyzed_documents)
+            st.session_state.facts = all_documents
     
             # Initialize models
             st.session_state.llm_model = LLMModel(llm_type)
@@ -492,6 +526,7 @@ def streamlit_app():
     except ValueError:
         st.write(f"{len(uploaded_files)} files uploaded. Session ended. Please refresh page to start a new session")
         del st.session_state["session_id"]
+        streamlit_js_eval(js_expressions="parent.window.location.reload()")
         
 if __name__ == "__main__":
     streamlit_app()
