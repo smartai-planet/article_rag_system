@@ -257,7 +257,15 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
                     Let your response be based only on the context information in {augmented_prompt}.
                     Occassionally, if you are asked questions outside the context, first try to answer based on context information in {augmented_prompt}.
                     If the answer is not in the context information, you may then use your base knowledge to answer the question. 
-                    When you use your base knowledge, inform the user that the answer is not found in context information and that you are pulling response from your knowledge base"""},
+                    When you use your base knowledge, inform the user that the answer is not found in context information and that you are pulling response from your knowledge base
+                    
+                    ### Polite Response:
+                    In your response, consider including:
+                    - Acknowledge the user’s query and express gratitude for the opportunity to assist.
+                    - Provide a clear and concise answer that directly addresses the question, based on context information in {augmented_prompt}. Ensure no ambiguity or hallucination.
+                    - Use positive language and maintain a supportive tone throughout.
+                    - If applicable, include relevant information or resources that could help further.
+                    - Conclude by inviting any follow-up questions or providing encouragement for the user’s pursuit of information."""},
         
         {"role": "user", "content": query}
         ]
