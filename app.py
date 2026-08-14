@@ -12,6 +12,7 @@ import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction, OllamaEmbeddingFunction
 import time
+import subprocess
 
 import tempfile
 import shutil
@@ -377,34 +378,39 @@ def streamlit_app():
 
 
     try:
+        
         uploaded_files = st.file_uploader("""Upload ONLY PDF Files. You can upload one or more files (Upload within 20 seconds)""", 
                                         type="pdf", 
                                         accept_multiple_files=True,
                                         max_upload_size=15)    #MB
     
-            
-        if uploaded_files:
-            for uploaded_file in uploaded_files:
-                save_path = session_dir / uploaded_file.name
-                with open(save_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-            st.success(f"Saved {len(uploaded_files)} file(s) to your private session folder.")
-            
-            
-            # --- Do your PDF analysis here, reading from session_dir ---
-            all_titles = list() 
-            for file_path in session_dir.iterdir():
-                st.write(f"Analyzing: {file_path.name}")
-                temp_doc = read_pdfuploaded_text(file_path)
+
+        proc = subprocess.Popen(
+            [if uploaded_files:
+                for uploaded_file in uploaded_files:
+                    save_path = session_dir / uploaded_file.name
+                    with open(save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                st.success(f"Saved {len(uploaded_files)} file(s) to your private session folder.")
                 
-                chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
-                all_documents.extend(chunks)
                 
-                t = read_pdf_title(file_path)
-                all_titles.append(t)  
-            
-             
-        time.sleep(23)
+                # --- Do your PDF analysis here, reading from session_dir ---
+                all_titles = list() 
+                for file_path in session_dir.iterdir():
+                    st.write(f"Analyzing: {file_path.name}")
+                    temp_doc = read_pdfuploaded_text(file_path)
+                    
+                    chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
+                    all_documents.extend(chunks)
+                    
+                    t = read_pdf_title(file_path)
+                    all_titles.append(t)  
+                
+            ]
+        )
+        proc.wait()
+        continue
+        #time.sleep(23)
 
         st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅") 
         
