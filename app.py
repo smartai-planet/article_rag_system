@@ -410,8 +410,6 @@ def streamlit_app():
             st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")
 
             event.wait()  # blocks until event.set() is called
-            print("Main: event received, continuing")
-            event.set()
 
             return all_documents, all_titles
 
@@ -421,9 +419,9 @@ def streamlit_app():
         # t.start()
         
         # event.wait()  # blocks until event.set() is called
-        # print("Main: event received, continuing")
-        # #time.sleep(23)
-        # event.set()
+        print("Main: event received, continuing")
+        #time.sleep(23)
+        event.set()
 
         
         
