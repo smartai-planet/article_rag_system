@@ -414,7 +414,7 @@ def streamlit_app():
 
 
         async def worker_processed():
-            await all_documents, all_titles = worker()
+            await worker()
             print("Main: continuing after worker")
 
         # all_documents, all_titles = result[0], result[1]
@@ -427,6 +427,7 @@ def streamlit_app():
         #time.sleep(23)
         
         asyncio.run(worker_processed())
+        all_documents, all_titles = worker()
         
         
         # analyzed_documents = " ".join(all_documents)            #Merge all strings into one
