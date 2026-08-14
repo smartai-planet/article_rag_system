@@ -12,7 +12,7 @@ import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction, OllamaEmbeddingFunction
 import time
-from concurrent.futures import ThreadPoolExecutor
+import asyncio
 
 import tempfile
 import shutil
@@ -377,7 +377,7 @@ def streamlit_app():
         st.session_state.pdf_docs = []
     
     try:
-        def worker():
+        async def worker():
             all_documents = []
             
             uploaded_files = st.file_uploader("""Upload ONLY PDF Files. You can upload one or more files (Upload within 20 seconds)""", 
@@ -413,10 +413,9 @@ def streamlit_app():
             return all_documents, all_titles
 
 
-        with ThreadPoolExecutor() as executor:
-            future = executor.submit(worker)
-            result = future.result()  # blocks until worker() finishes
-            all_documents, all_titles = worker()
+        async def worker_processed():
+            await all_documents, all_titles = worker()
+            print("Main: continuing after worker")
 
         # all_documents, all_titles = result[0], result[1]
 
@@ -427,7 +426,7 @@ def streamlit_app():
         print("Main: event received, continuing")
         #time.sleep(23)
         
-
+        asyncio.run(worker_processed())
         
         
         # analyzed_documents = " ".join(all_documents)            #Merge all strings into one
