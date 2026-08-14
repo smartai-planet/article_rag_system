@@ -406,7 +406,7 @@ def streamlit_app():
                     t = read_pdf_title(file_path)
                     all_titles.append(t)  
 
-            st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅") 
+                st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅") 
 
             return all_documents, all_titles
 
