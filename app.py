@@ -376,7 +376,8 @@ def streamlit_app():
     if "pdf_docs" not in st.session_state:
         st.session_state.pdf_docs = []
 
-
+    event = threading.Event()
+    
     try:
         def worker():
             all_documents = []
@@ -412,10 +413,13 @@ def streamlit_app():
 
         all_documents, all_titles = worker()
 
+        event.set()
+
         t = threading.Thread(target=worker)
         t.start()
-        print("Thread: done")
-        t.join()
+        
+        event.wait()  # blocks until event.set() is called
+        print("Main: event received, continuing")
         #time.sleep(23)
 
         
