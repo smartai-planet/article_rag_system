@@ -406,15 +406,14 @@ def streamlit_app():
                     t = read_pdf_title(file_path)
                     all_titles.append(t)  
 
-                st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅") 
+            return all_documents, all_titles, uploaded_files
 
-            return all_documents, all_titles
-
-        all_documents, all_titles = worker()
+        all_documents, all_titles, uploaded_files = worker()
 
         t = threading.Thread(target=worker)
         t.start()
         print("Thread: done")
+        st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")
         t.join()
         #time.sleep(23)
 
