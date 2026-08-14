@@ -391,19 +391,19 @@ def streamlit_app():
             
             
             # --- Do your PDF analysis here, reading from session_dir ---
-            st.badge("Click the button below after your uploads are completed")
-            if st.button("Upload Completed"):
+            # st.badge("Click the button below after your uploads are completed")
+            # if st.button("Upload Completed"):
                 
-                all_titles = list() 
-                for file_path in session_dir.iterdir():
-                    st.write(f"Analyzing: {file_path.name}")
-                    temp_doc = read_pdfuploaded_text(file_path)
-                    
-                    chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
-                    all_documents.extend(chunks)
-                    
-                    t = read_pdf_title(file_path)
-                    all_titles.append(t)  
+            all_titles = list() 
+            for file_path in session_dir.iterdir():
+                st.write(f"Analyzing: {file_path.name}")
+                temp_doc = read_pdfuploaded_text(file_path)
+                
+                chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
+                all_documents.extend(chunks)
+                
+                t = read_pdf_title(file_path)
+                all_titles.append(t)  
 
         st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")
 
