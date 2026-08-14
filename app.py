@@ -407,19 +407,23 @@ def streamlit_app():
                     t = read_pdf_title(file_path)
                     all_titles.append(t)  
 
-                st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")
+            st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")
+
+            event.wait()  # blocks until event.set() is called
+            print("Main: event received, continuing")
+            event.set()
 
             return all_documents, all_titles
 
         all_documents, all_titles = worker()
 
-        t = threading.Thread(target=worker)
-        t.start()
+        # t = threading.Thread(target=worker)
+        # t.start()
         
-        event.wait()  # blocks until event.set() is called
-        print("Main: event received, continuing")
-        #time.sleep(23)
-        event.set()
+        # event.wait()  # blocks until event.set() is called
+        # print("Main: event received, continuing")
+        # #time.sleep(23)
+        # event.set()
 
         
         
