@@ -384,20 +384,19 @@ def streamlit_app():
                                             type="pdf", 
                                             accept_multiple_files=True,
                                             max_upload_size=15)    #MB
-
-            st.badge("Click the button below after your uploads are completed")
-            if st.button("Upload Completed"):
-                #continue
+            
+            if uploaded_files:
+                for uploaded_file in uploaded_files:
+                    save_path = session_dir / uploaded_file.name
+                    with open(save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                st.success(f"Saved {len(uploaded_files)} file(s) to your private session folder.")
                 
-                if uploaded_files:
-                    for uploaded_file in uploaded_files:
-                        save_path = session_dir / uploaded_file.name
-                        with open(save_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                    st.success(f"Saved {len(uploaded_files)} file(s) to your private session folder.")
+                
+                # --- Do your PDF analysis here, reading from session_dir ---
+                st.badge("Click the button below after your uploads are completed")
+                if st.button("Upload Completed"):
                     
-                    
-                    # --- Do your PDF analysis here, reading from session_dir ---
                     all_titles = list() 
                     for file_path in session_dir.iterdir():
                         st.write(f"Analyzing: {file_path.name}")
@@ -408,17 +407,17 @@ def streamlit_app():
                         
                         t = read_pdf_title(file_path)
                         all_titles.append(t)  
-    
-                st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")
-    
-                return all_documents, all_titles
+
+            st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")
+
+            return all_documents, all_titles
 
 
         with ThreadPoolExecutor() as executor:
             future = executor.submit(worker)
             result = future.result()  # blocks until worker() finishes
 
-        all_documents, all_titles = worker()
+        all_documents, all_titles = result
 
         # t = threading.Thread(target=worker)
         # t.start()
