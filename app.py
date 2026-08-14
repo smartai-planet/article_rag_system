@@ -411,6 +411,10 @@ def streamlit_app():
 
             event.wait()  # blocks until event.set() is called
 
+            st.badge("Click the button below after your uploads are completed")
+            if st.button("Upload Completed"):
+                event.set()
+
             return all_documents, all_titles
 
         all_documents, all_titles = worker()
@@ -421,9 +425,7 @@ def streamlit_app():
         # event.wait()  # blocks until event.set() is called
         print("Main: event received, continuing")
         #time.sleep(23)
-        st.write("Click the button below after Upload is completed")
-        if st.button("Upload Completed"):
-            event.set()
+        
 
         
         
