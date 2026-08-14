@@ -377,7 +377,7 @@ def streamlit_app():
 
 
     try:
-        uploaded_files = st.file_uploader("""Upload ONLY PDF Files. You can upload one or more files (Upload within 30 seconds)""", 
+        uploaded_files = st.file_uploader("""Upload ONLY PDF Files. You can upload one or more files (Upload within 20 seconds)""", 
                                         type="pdf", 
                                         accept_multiple_files=True,
                                         max_upload_size=15)    #MB
@@ -404,7 +404,7 @@ def streamlit_app():
                 all_titles.append(t)  
             
              
-        time.sleep(35)
+        time.sleep(23)
 
         st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅") 
         
