@@ -12,7 +12,7 @@ import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction, OllamaEmbeddingFunction
 import time
-import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import tempfile
 import shutil
@@ -375,8 +375,6 @@ def streamlit_app():
 
     if "pdf_docs" not in st.session_state:
         st.session_state.pdf_docs = []
-
-    event = threading.Event()
     
     try:
         def worker():
@@ -386,7 +384,11 @@ def streamlit_app():
                                             type="pdf", 
                                             accept_multiple_files=True,
                                             max_upload_size=15)    #MB
-        
+
+            st.badge("Click the button below after your uploads are completed")
+            if st.button("Upload Completed"):
+                continue
+                
             if uploaded_files:
                 for uploaded_file in uploaded_files:
                     save_path = session_dir / uploaded_file.name
@@ -409,15 +411,14 @@ def streamlit_app():
 
             st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅")
 
-            event.wait()  # blocks until event.set() is called
-
-            st.badge("Click the button below after your uploads are completed")
-            if st.button("Upload Completed"):
-                event.set()
-
             return all_documents, all_titles
 
-        all_documents, all_titles = worker()
+
+        with ThreadPoolExecutor() as executor:
+            future = executor.submit(worker)
+            all_documents, all_titles = future.result()  # blocks until worker() finishes
+
+        # all_documents, all_titles = worker()
 
         # t = threading.Thread(target=worker)
         # t.start()
