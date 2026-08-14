@@ -421,7 +421,9 @@ def streamlit_app():
         # event.wait()  # blocks until event.set() is called
         print("Main: event received, continuing")
         #time.sleep(23)
-        event.set()
+        st.write("Click the button below after Upload is completed")
+        if st.button("Upload Completed"):
+            event.set()
 
         
         
