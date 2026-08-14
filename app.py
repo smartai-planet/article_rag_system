@@ -12,7 +12,7 @@ import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction, OllamaEmbeddingFunction
 import time
-import subprocess
+import threading
 
 import tempfile
 import shutil
@@ -281,7 +281,7 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
     references = [chunk for chunk in relevant_chunks]
     return response, references
 
-all_documents = [] 
+# all_documents = [] 
 
 def streamlit_app():
     cleanup_stale_sessions()
@@ -378,14 +378,14 @@ def streamlit_app():
 
 
     try:
+        def worker():
+            all_documents = []
+            
+            uploaded_files = st.file_uploader("""Upload ONLY PDF Files. You can upload one or more files (Upload within 20 seconds)""", 
+                                            type="pdf", 
+                                            accept_multiple_files=True,
+                                            max_upload_size=15)    #MB
         
-        uploaded_files = st.file_uploader("""Upload ONLY PDF Files. You can upload one or more files (Upload within 20 seconds)""", 
-                                        type="pdf", 
-                                        accept_multiple_files=True,
-                                        max_upload_size=15)    #MB
-    
-
-        proc = subprocess.Popen(
             if uploaded_files:
                 for uploaded_file in uploaded_files:
                     save_path = session_dir / uploaded_file.name
@@ -405,12 +405,17 @@ def streamlit_app():
                     
                     t = read_pdf_title(file_path)
                     all_titles.append(t)  
-        )
-        proc.wait()
-        continue
+
+            return all_documents, all_titles
+
+        t = threading.Thread(target=worker)
+        t.start()
+        t.join()
         #time.sleep(23)
 
         st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅") 
+
+        all_documents, all_titles = worker()
         
         # analyzed_documents = " ".join(all_documents)            #Merge all strings into one
     
