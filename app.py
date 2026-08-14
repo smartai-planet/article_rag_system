@@ -386,7 +386,7 @@ def streamlit_app():
     
 
         proc = subprocess.Popen(
-            [if uploaded_files:
+            if uploaded_files:
                 for uploaded_file in uploaded_files:
                     save_path = session_dir / uploaded_file.name
                     with open(save_path, "wb") as f:
@@ -405,8 +405,6 @@ def streamlit_app():
                     
                     t = read_pdf_title(file_path)
                     all_titles.append(t)  
-                
-            ]
         )
         proc.wait()
         continue
