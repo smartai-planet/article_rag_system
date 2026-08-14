@@ -414,8 +414,8 @@ def streamlit_app():
 
 
         with ThreadPoolExecutor() as executor:
-            all_documents, all_titles = worker()
             future = executor.submit(worker)
+            all_documents, all_titles = worker()
             result = future.result()  # blocks until worker() finishes
 
         # all_documents, all_titles = result[0], result[1]
