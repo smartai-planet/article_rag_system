@@ -252,9 +252,11 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
         [
         {"role": "system", "content": f"""You are a very smart assistant.
                     You can are very knowledgeable and can effectively answer any question from within the context information, or just about any question. 
-                    You answer questions that are directly related to the full contexts given. 
-                    To answer questions, first rigorously consult all the context information in {augmented_prompt}.
-                    Let your response be based only on the context information in {augmented_prompt}.
+                    For each user associated with a session ID, you should ONLY answer their questions as it is directly related to their uploaded docuemtns. 
+                    Do not consider all previous context in your knowledge base for each user session. Only reference the context information from uploaded documents.
+                    To answer questions, first rigorously consult the context information in {augmented_prompt} related to the {query} as per user's uploaded document.
+                    Let your response be based only on the context information in {augmented_prompt}. Restrict your response on to documents uploaded in each session.
+                    If you are not sure, ask the user to give you keywords from uploaded documents. That way you can restrict your responses only to context information from that uploaded documents in each session.
                     Occassionally, if you are asked questions outside the context, first try to answer based on context information in {augmented_prompt}.
                     If the answer is not in the context information, you may then use your base knowledge to answer the question. 
                     When you use your base knowledge, inform the user that the answer is not found in context information and that you are pulling response from your knowledge base
@@ -264,7 +266,8 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
                     - Acknowledge the user’s query and express gratitude for the opportunity to assist.
                     - Provide a clear and concise answer that directly addresses the question, based on context information in {augmented_prompt}. Ensure no ambiguity or hallucination.
                     - Use positive language and maintain a supportive tone throughout.
-                    - If applicable, include relevant information or resources that could help further.
+                    - Use context information from only documents uploaded in a user session. 
+                    - If applicable, include relevant information or resources that could help further. Only when neccessary
                     - Conclude by inviting any follow-up questions or providing encouragement for the user’s pursuit of information."""},
         
         {"role": "user", "content": query}
@@ -525,14 +528,14 @@ def streamlit_app():
         st.write("⚠️⚠️ Click the button below only after all your analysis. Clicking it deletes your uploaded files and closes your session. ⚠️⚠️")
         if st.button("End Analysis and Delete Files"):
             dest = move_to_permanent_storage(session_dir)
-            st.success(f"Files archived to {dest}. Temp folder removed.")
+            st.success(f"Archived Files in {dest}... User session folder deleted permanently.")
             # Optional: reset session id so a fresh temp folder is made
             # if the user uploads more files in the same browser tab
             del st.session_state["session_id"]
 
     # No files uploaded. End active session
     except (UnboundLocalError, ValueError):
-        st.write(f"{len(uploaded_files)} files uploaded. Session ended. Please refresh page to start a new session")
+        st.write(f"{len(uploaded_files)} files uploaded. Session ended. Page will refresh to start a new session")
         del st.session_state["session_id"]
         streamlit_js_eval(js_expressions="parent.window.location.reload()")
         
