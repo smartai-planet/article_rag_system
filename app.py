@@ -413,14 +413,13 @@ def streamlit_app():
 
         all_documents, all_titles = worker()
 
-        event.set()
-
         t = threading.Thread(target=worker)
         t.start()
         
         event.wait()  # blocks until event.set() is called
         print("Main: event received, continuing")
         #time.sleep(23)
+        event.set()
 
         
         
