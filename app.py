@@ -285,6 +285,10 @@ all_documents = []
 def streamlit_app():
     cleanup_stale_sessions()
     
+    doc_ids = st.session_state.collection.get()["ids"]
+    st.session_state.collection.delete(ids=doc_ids)
+    #st.session_state.collection.delete()
+    
     st.set_page_config(page_title="Smart Research Article Analyzer", layout="wide")
     st.title("🧾 Smart Article: Document Analyzer with RAG Integration")
 
