@@ -410,12 +410,13 @@ def streamlit_app():
 
         t = threading.Thread(target=worker)
         t.start()
-        t.join()
-        #time.sleep(23)
-
         st.write(f"All {len(uploaded_files)} files uploaded successfully! ✅") 
 
         all_documents, all_titles = worker()
+        t.join()
+        #time.sleep(23)
+
+        
         
         # analyzed_documents = " ".join(all_documents)            #Merge all strings into one
     
