@@ -390,27 +390,27 @@ def streamlit_app():
             for file in files:
                 st.session_state.uploaded_files.append(file)
 
-        for uploaded_file in st.session_state.uploaded_files:
-            save_path = session_dir / uploaded_file.name
-            with open(save_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-        st.success(f"Saved {len(st.session_state.uploaded_files)} file(s) to your private session folder.")
-        
-        
-        # --- Do your PDF analysis here, reading from session_dir ---
-        # st.badge("Click the button below after your uploads are completed")
-        # if st.button("Upload Completed"):
+            for uploaded_file in st.session_state.uploaded_files:
+                save_path = session_dir / uploaded_file.name
+                with open(save_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+            st.success(f"Saved {len(st.session_state.uploaded_files)} file(s) to your private session folder.")
             
-        all_titles = list() 
-        for file_path in session_dir.iterdir():
-            st.write(f"Analyzing: {file_path.name}")
-            temp_doc = read_pdfuploaded_text(file_path)
             
-            chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
-            all_documents.extend(chunks)
-            
-            t = read_pdf_title(file_path)
-            all_titles.append(t) 
+            # --- Do your PDF analysis here, reading from session_dir ---
+            # st.badge("Click the button below after your uploads are completed")
+            # if st.button("Upload Completed"):
+                
+            all_titles = list() 
+            for file_path in session_dir.iterdir():
+                st.write(f"Analyzing: {file_path.name}")
+                temp_doc = read_pdfuploaded_text(file_path)
+                
+                chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
+                all_documents.extend(chunks)
+                
+                t = read_pdf_title(file_path)
+                all_titles.append(t) 
 
 
         
