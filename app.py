@@ -385,7 +385,7 @@ def streamlit_app():
             files = st.file_uploader("Upload files", type="pdf", accept_multiple_files=True, max_upload_size=15)
             submitted = st.form_submit_button("Upload")
 
-        if submitted and files:
+        if files:
             # Append new files to the existing list in session state
             for file in files:
                 st.session_state.uploaded_files.append(file)
@@ -477,88 +477,88 @@ def streamlit_app():
                     documents, st.session_state.embedding_model
                 )
         
-        # Display uploaded documents
-        st.session_state.titles = all_titles
-        
-        with st.expander("📚 Available Documents in RAG Knowledge base", expanded=False):
-            for title in st.session_state.titles:
-                st.write(f"- {title}")
-    
-        # Query input
-        st.text("=== QUERY OPTIONS ===")
-        st.text("▶️ Type your questions to query the knowledge base of your uploaded articles ")
-        st.text("▶️ If you wish to download all images from the articles, type images ")
-        st.text("▶️ If you want the system to find related articles to the ones you uploaded, type papers ")
-        
-        
-        query = st.text_input(
-            "Enter your Query:",
-            placeholder="Query the knowledge base for response ...",
-        )
-    
-        if query:
-                
-            if query == "papers".lower():
-                st.text("🧠 Exporing my Knowledge Base ...")
-                from search_articles_streamlit import execute_search_papers
-                query_titles = all_titles
-                
-                for title in query_titles:
-                    tar = title.split(" ")[:10]
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.text("🔎 " + " ".join(tar))
-                    with col2:
-                        execute_search_papers(" ".join(tar))
-                
-            elif query == "images".lower():
-                all_bytes = list() ; all_ext = list()
-                for file_path in session_dir.iterdir():
-                    temp_bytes, temp_exts = read_pdf_image(file_path)
-                    all_bytes.extend(temp_bytes)
-                    all_ext.extend(temp_exts)
-                
-                # Crete download button for each image
-                for i in range(len(all_ext)):
-                    st.download_button(
-                            label=f"Download Image_{i}",
-                            data=bytes(all_bytes[i]),
-                            file_name=f"image_{i}.{all_ext[i]}",
-                            mime=f"image/{all_ext[i]}"
-                        )
-                st.text("All Images Processed Successfully! 😎")  
+            # Display uploaded documents
+            st.session_state.titles = all_titles
             
-            else: 
-                with st.spinner("Processing your query..."):
-                    augmented_prompt = augment_prompt(
-                        query, find_related_chunks(
-                                        query, st.session_state.collection)
-                        )
+            with st.expander("📚 Available Documents in RAG Knowledge base", expanded=False):
+                for title in st.session_state.titles:
+                    st.write(f"- {title}")
+        
+            # Query input
+            st.text("=== QUERY OPTIONS ===")
+            st.text("▶️ Type your questions to query the knowledge base of your uploaded articles ")
+            st.text("▶️ If you wish to download all images from the articles, type images ")
+            st.text("▶️ If you want the system to find related articles to the ones you uploaded, type papers ")
+            
+            
+            query = st.text_input(
+                "Enter your Query:",
+                placeholder="Query the knowledge base for response ...",
+            )
+        
+            if query:
                     
-                    response, references = rag_pipeline(
-                        augmented_prompt, st.session_state.collection, st.session_state.llm_model
-                    )    #query
-    
-                    # Display results in columns
-                    col1, col2 = st.columns(2)
-    
-                    with col1:
-                        st.markdown("### 🤖 Response")
-                        st.write(response)
-    
-                    with col2:
-                        st.markdown("### 📖 References Used")
-                        for ref in references:
-                            st.write(f"- {ref}")
-    
-                    # Show technical details in expander
-                    with st.expander("🔍 Technical Details", expanded=False):
-                        st.markdown("#### Augmented Prompt")
-                        st.code(augmented_prompt)
-    
-                        st.markdown("#### Model Configuration")
-                        st.write(f"- LLM Model: {llm_type.upper()}")
-                        st.write(f"- Embedding Model: {embedding_type.upper()}")
+                if query == "papers".lower():
+                    st.text("🧠 Exporing my Knowledge Base ...")
+                    from search_articles_streamlit import execute_search_papers
+                    query_titles = all_titles
+                    
+                    for title in query_titles:
+                        tar = title.split(" ")[:10]
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.text("🔎 " + " ".join(tar))
+                        with col2:
+                            execute_search_papers(" ".join(tar))
+                    
+                elif query == "images".lower():
+                    all_bytes = list() ; all_ext = list()
+                    for file_path in session_dir.iterdir():
+                        temp_bytes, temp_exts = read_pdf_image(file_path)
+                        all_bytes.extend(temp_bytes)
+                        all_ext.extend(temp_exts)
+                    
+                    # Crete download button for each image
+                    for i in range(len(all_ext)):
+                        st.download_button(
+                                label=f"Download Image_{i}",
+                                data=bytes(all_bytes[i]),
+                                file_name=f"image_{i}.{all_ext[i]}",
+                                mime=f"image/{all_ext[i]}"
+                            )
+                    st.text("All Images Processed Successfully! 😎")  
+                
+                else: 
+                    with st.spinner("Processing your query..."):
+                        augmented_prompt = augment_prompt(
+                            query, find_related_chunks(
+                                            query, st.session_state.collection)
+                            )
+                        
+                        response, references = rag_pipeline(
+                            augmented_prompt, st.session_state.collection, st.session_state.llm_model
+                        )    #query
+        
+                        # Display results in columns
+                        col1, col2 = st.columns(2)
+        
+                        with col1:
+                            st.markdown("### 🤖 Response")
+                            st.write(response)
+        
+                        with col2:
+                            st.markdown("### 📖 References Used")
+                            for ref in references:
+                                st.write(f"- {ref}")
+        
+                        # Show technical details in expander
+                        with st.expander("🔍 Technical Details", expanded=False):
+                            st.markdown("#### Augmented Prompt")
+                            st.code(augmented_prompt)
+        
+                            st.markdown("#### Model Configuration")
+                            st.write(f"- LLM Model: {llm_type.upper()}")
+                            st.write(f"- Embedding Model: {embedding_type.upper()}")
     
     
         st.write("⚠️⚠️ Click the button below only after all your analysis. Clicking it deletes your uploaded files and closes your session. ⚠️⚠️")
