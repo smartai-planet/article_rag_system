@@ -371,7 +371,7 @@ def streamlit_app():
     session_dir = get_session_dir()
     st.caption(f"Session ID: {st.session_state.session_id}")
     
-    st.write("#PDF Ingestion - RAG Knowledge Base ")
+    st.write("#PDF Ingestion - BUILD RAG KNOWLEDGE BASE")
 
     
     try:
@@ -382,11 +382,11 @@ def streamlit_app():
             st.session_state.done_uploading = False 
 
         uploaded_files = st.file_uploader(
-                "Upload files (you can upload in multiple batches)",
+                "Upload files (you can upload in multiple batches +). Click \'Done Uploading\' after all your file selection.",
                 accept_multiple_files=True,
                 key="uploader",
                 type="pdf",
-                max_upload_size=15
+                max_upload_size=20
             )
 
         if uploaded_files:
@@ -399,7 +399,7 @@ def streamlit_app():
         for f in st.session_state.all_files:
             st.write(f"- {f.name}")
 
-        if st.button("Done uploading"):
+        if st.button("Done Uploading"):
             st.session_state.done_uploading = True
 
         if st.session_state.done_uploading:
@@ -498,8 +498,8 @@ def streamlit_app():
             # Query input
             st.text("=== QUERY OPTIONS ===")
             st.text("▶️ Type your questions to query the knowledge base of your uploaded articles ")
-            st.text("▶️ If you wish to download all images from the articles, type images ")
-            st.text("▶️ If you want the system to find related articles to the ones you uploaded, type papers ")
+            st.text("▶️ If you wish to download all images from the articles, type: images ")
+            st.text("▶️ If you want the system to find related articles to the ones you uploaded, type: papers ")
             
             
             query = st.text_input(
