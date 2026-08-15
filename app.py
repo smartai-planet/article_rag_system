@@ -394,7 +394,7 @@ def streamlit_app():
             save_path = session_dir / uploaded_file.name
             with open(save_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
-        st.success(f"Saved {len(uploaded_files)} file(s) to your private session folder.")
+        st.success(f"Saved {len(st.session_state.uploaded_files)} file(s) to your private session folder.")
         
         
         # --- Do your PDF analysis here, reading from session_dir ---
