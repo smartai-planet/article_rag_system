@@ -576,7 +576,7 @@ def streamlit_app():
                 
     # No files uploaded. End active session
     except (UnboundLocalError, ValueError):
-        st.write(f"{len(uploaded_files)} files uploaded. Session ended. Page will refresh to start a new session")
+        st.write(f"{len(st.session_state.uploaded_files)} files uploaded. Session ended. Page will refresh to start a new session")
         # st.write("Session ended. Page will refresh to start a new session")
         del st.session_state["session_id"]
         streamlit_js_eval(js_expressions="parent.window.location.reload()")
