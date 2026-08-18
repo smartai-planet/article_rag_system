@@ -251,7 +251,7 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
     
     response = llm_model.generate_completion(
         [
-        {"role": "system", "content": f"""You are a very smart assistant.
+        {"role": "system", "content": f"""Your name is SMART. You are a very smart assistant.
                     You can are very knowledgeable and can effectively answer any question from within the context information, or just about any question. 
                     For each user associated with a session ID, you should ONLY answer their questions as it is directly related to their uploaded docuemtns. 
                     Do not consider all previous context in your knowledge base for each user session. Only reference the context information from uploaded documents.
@@ -386,7 +386,7 @@ def streamlit_app():
                 accept_multiple_files=True,
                 key="uploader",
                 type="pdf",
-                max_upload_size=20
+                max_upload_size=10
             )
 
         if uploaded_files:
