@@ -19,6 +19,14 @@ import shutil
 import uuid
 from pathlib import Path
 
+from langchain_classic.document_loaders.generic import GenericLoader
+from langchain_classic.document_loaders.parsers import OpenAIWhisperParser 
+from langchain_classic.document_loaders.blob_loaders.youtube_audio import YoutubeAudioLoader
+from langchain_classic.document_loaders import WebBaseLoader 
+
+from urllib.parse import urlparse
+#from pathlib import Path
+
 
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
@@ -109,6 +117,44 @@ def move_to_permanent_storage(session_dir: Path):
     return dest
 
 
+#Extract name from URL
+def get_urlname(url):
+    return Path(urlparse(url).path).name
+
+
+def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap: int = 150):
+    chunks = []
+    start = 0
+    while start < len(texts):
+        end = start + chunk_size
+        
+        #If not beginning from start, include overlap
+        if start > 0:
+            start = start - chunk_overlap
+        
+        chunk = texts[start:end]
+        
+        #Try to break at end of sentence to preserve full paragraph context
+        if end < len(texts):
+            last_period = chunk.rfind(".")
+            if last_period != -1:
+                chunk = chunk[ : last_period + 1]
+                end = start + last_period + 1
+                
+        
+        chunks.append(
+            {"id" : str(uuid.uuid4()),
+             "text" : chunk,
+             "metadata" : {"source": get_urlname(url)}
+             }
+        )
+        
+        start = end
+    
+    return chunks
+    
+    
+
 # Function to split text
 def make_chunks(texts : str, pdf_file, chunk_size: int = 1000, chunk_overlap: int = 200):
     """Splitting the texts into chunks"""
@@ -191,7 +237,7 @@ def read_pdf_image(pdfupload_path):
     return temp_bytes, temp_ext
         
         
-#Split Text and assign ID
+#Extract name from URL
 # def split_text_id(docs):
 #     messages_with_id = dict()
 #     chunks = make_chunks(texts=docs, chunk_size=1000, chunk_overlap=200)
@@ -371,57 +417,137 @@ def streamlit_app():
     session_dir = get_session_dir()
     st.caption(f"Session ID: {st.session_state.session_id}")
     
-    st.write("#PDF Ingestion - BUILD RAG KNOWLEDGE BASE")
+    st.write("RAG KNOWLEDGE BASE - Upload a PDF file, provide a Web URL or provide a Youtube URL")
 
-    
     try:
         if "all_files" not in st.session_state:
             st.session_state.all_files = []    
 
         if "done_uploading" not in st.session_state:
             st.session_state.done_uploading = False 
+            
 
-        uploaded_files = st.file_uploader(
-                "Upload files (you can upload in multiple batches +). Click \'Done Uploading\' after all your file selection.",
-                accept_multiple_files=True,
-                key="uploader",
-                type="pdf",
-                max_upload_size=10
-            )
+        tab1, tab2, tab3 = st.tabs(["📁 Upload PDF File", "🔗 From Web URL", "🔗 From Youtube URL"])
 
-        if uploaded_files:
-            existing_names = [f.name for f in st.session_state.all_files]
-            for f in uploaded_files:
-                if f.name not in existing_names:
-                    st.session_state.all_files.append(f)
+        if tab1.open:
+            with tab1:
+                uploaded_files = st.file_uploader(
+                        "Upload files (you can upload in multiple batches +). Click \'Done Uploading\' after all your file selection.",
+                        accept_multiple_files=True,
+                        key="uploader",
+                        type="pdf",
+                        max_upload_size=10
+                    )
+        
+                if uploaded_files:
+                    existing_names = [f.name for f in st.session_state.all_files]
+                    for f in uploaded_files:
+                        if f.name not in existing_names:
+                            st.session_state.all_files.append(f)
+        
+                st.write(f"Total files collected so far: {len(st.session_state.all_files)}")
+                for f in st.session_state.all_files:
+                    st.write(f"- {f.name}")
 
-        st.write(f"Total files collected so far: {len(st.session_state.all_files)}")
-        for f in st.session_state.all_files:
-            st.write(f"- {f.name}")
+                #st.success("Finished uploading. Processing files now...")
+                for uploaded_file in st.session_state.all_files:
+                    save_path = session_dir / uploaded_file.name
+                    with open(save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
+            
+                # --- PDF analysis here, reading from session_dir ---
+                    
+                all_titles = list() 
+                for file_path in session_dir.iterdir():
+                    st.write(f"Analyzing: {file_path.name}")
+                    temp_doc = read_pdfuploaded_text(file_path)
+                    
+                    chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
+                    all_documents.extend(chunks)
+                    
+                    t = read_pdf_title(file_path)
+                    all_titles.append(t)
+
+        elif tab2.open:
+            with tab2:
+                url = st.text_input("Enter Web URL", placeholder="https://github.com/ikenna-oluigbo")
+
+                if url: 
+                    existing_names = [get_urlname(f) for f in st.session_state.all_files]
+                    for f in url:
+                        if get_urlname(f) not in existing_names:
+                            st.session_state.all_files.append(f)
+                            
+                st.write(f"{len(st.session_state.all_files)} link uploaded")
+                for f in st.session_state.all_files:
+                    st.write(f"- {get_urlname(f)}")
+
+                for link in st.session_state.all_files:
+                    save_path = session_dir / get_urlname(link)
+                    with open(save_path, "wb") as f:
+                        f.write(WebBaseLoader(link))
+                st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
+
+                all_titles = list() 
+                for file_path in session_dir.iterdir():
+                    st.write(f"Analyzing: {get_urlname(file_path)}")
+                    urlfile = WebBaseLoader(file_path)
+                    urldata = urlfile.load()[0].page_content
+                    
+                    chunks = make_chunks_url(texts=urldata, url_file=file_path, chunk_size=500, chunk_overlap=150)
+                    all_documents.extend(chunks)
+
+                    all_titles.append(get_urlname(file_path))
+                    
+                
+        else tab3.open:
+            with tab3:
+                url = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
+
+                if url: 
+                    existing_names = [get_urlname(f) for f in st.session_state.all_files]
+                    for f in url:
+                        if get_urlname(f) not in existing_names:
+                            st.session_state.all_files.append(f)
+                            
+                st.write(f"{len(st.session_state.all_files)} link uploaded")
+                for f in st.session_state.all_files:
+                    st.write(f"- {get_urlname(f)}")
+
+                for link in st.session_state.all_files:
+                    save_path = session_dir / get_urlname(link)
+                    yloader = GenericLoader(
+                            YoutubeAudioLoader([link], save_path),
+                            OpenAIWhisperParser()
+                        )
+                    with open(save_path, "wb") as f:
+                        f.write(yloader)
+                st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
+
+                all_titles = list() 
+                save_dir_yt = "./youtube/"
+                os.makedirs(save_dir_yt, exist_ok=True)
+                for file_path in session_dir.iterdir():
+                    st.write(f"Analyzing: {get_urlname(file_path)}")
+                    yloader = GenericLoader(
+                            YoutubeAudioLoader([file_path], save_dir_yt),
+                            OpenAIWhisperParser()
+                        )
+                    yvid = yloader.load()[0].page_content
+                    
+                    chunks = make_chunks_url(texts=yvid, url_file=file_path, chunk_size=500, chunk_overlap=150)
+                    all_documents.extend(chunks)
+
+                    all_titles.append(get_urlname(file_path))
+            
 
         if st.button("Done Uploading"):
             st.session_state.done_uploading = True
 
         if st.session_state.done_uploading:
-            st.success("Finished uploading. Processing files now...")
-            for uploaded_file in st.session_state.all_files:
-                save_path = session_dir / uploaded_file.name
-                with open(save_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-            st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
-        
-            # --- PDF analysis here, reading from session_dir ---
-                
-            all_titles = list() 
-            for file_path in session_dir.iterdir():
-                st.write(f"Analyzing: {file_path.name}")
-                temp_doc = read_pdfuploaded_text(file_path)
-                
-                chunks = make_chunks(texts=temp_doc, pdf_file=file_path, chunk_size=1000, chunk_overlap=200)
-                all_documents.extend(chunks)
-                
-                t = read_pdf_title(file_path)
-                all_titles.append(t) 
+            st.write("All processing completed successfully")
+                 
     
     
             
