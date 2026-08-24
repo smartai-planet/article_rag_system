@@ -22,7 +22,7 @@ from pathlib import Path
 from langchain_community.document_loaders.generic import GenericLoader   
 from langchain_community.document_loaders.parsers.audio import OpenAIWhisperParser   
 from langchain_community.document_loaders.blob_loaders.youtube_audio import YoutubeAudioLoader   
-from langchain_classic.document_loaders import WebBaseLoader 
+from langchain_community.document_loaders import WebBaseLoader   
 
 from urllib.parse import urlparse
 #from pathlib import Path
