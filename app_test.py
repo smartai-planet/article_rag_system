@@ -515,10 +515,10 @@ def streamlit_app():
                 yturl = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
 
                 if yturl: 
-                    # existing_names = [get_urlname(f) for f in st.session_state.all_files]
-                    # #for f in yturl:
-                    # if get_urlname(yturl) not in existing_names:
-                    st.session_state.all_files.append(yturl)
+                    existing_names = [get_urlname(f) for f in st.session_state.all_files]
+                    #for f in yturl:
+                    if get_urlname(yturl) not in existing_names:
+                        st.session_state.all_files.append(yturl)
                 st.session_state["active_source"] = "yturl"
                 st.session_state["url_data2"] = yturl
                 st.session_state.pop("pdf_data", None)
@@ -540,8 +540,8 @@ def streamlit_app():
                 # st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
 
                 all_titles = list() 
-                save_dir_yt = "./youtube/"
-                os.makedirs(save_dir_yt, exist_ok=True)
+                # save_dir_yt = "./youtube/"
+                # os.makedirs(save_dir_yt, exist_ok=True)
                 # for file_path in session_dir.iterdir():
                 # st.write(f"Analyzing: {get_urlname(file_path)}")
                 yloader = YoutubeLoader.from_youtube_url(yturl, add_video_info=False)
