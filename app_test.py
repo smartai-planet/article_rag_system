@@ -531,7 +531,8 @@ def streamlit_app():
                 #     st.write(f"- {get_urlname(f)}")
 
                 for link in st.session_state.all_files:
-                    save_path = session_dir / get_urlname(link)
+                    # save_path = session_dir / get_urlname(link)
+                    save_path = session_dir / yturl
                     # yloader = GenericLoader(
                     #         YoutubeAudioLoader([link], save_path),
                     #         OpenAIWhisperParser()
