@@ -490,8 +490,8 @@ def streamlit_app():
                     st.session_state.pop("url_data2", None)
                             
                 st.write(f"{len(st.session_state.all_files)} link uploaded")
-                for f in st.session_state.all_files:
-                    st.write(f"- {get_urlname(f)}")
+                # for f in st.session_state.all_files:
+                #     st.write(f"- {get_urlname(f)}")
 
                 for link in st.session_state.all_files:
                     save_path = session_dir / get_urlname(link)
@@ -526,8 +526,8 @@ def streamlit_app():
                 st.session_state.pop("url_data1", None)
                             
                 st.write(f"{len(st.session_state.all_files)} link uploaded")
-                for f in st.session_state.all_files:
-                    st.write(f"- {get_urlname(f)}")
+                # for f in st.session_state.all_files:
+                #     st.write(f"- {get_urlname(f)}")
 
                 for link in st.session_state.all_files:
                     save_path = session_dir / get_urlname(link)
