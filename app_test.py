@@ -518,9 +518,9 @@ def streamlit_app():
 
                 if yturl: 
                     existing_names = [get_urlname(f) for f in st.session_state.all_files]
-                    for f in yturl:
-                        if get_urlname(f) not in existing_names:
-                            st.session_state.all_files.append(f)
+                    #for f in yturl:
+                    if get_urlname(yturl) not in existing_names:
+                        st.session_state.all_files.append(yturl)
                 st.session_state["active_source"] = "yturl"
                 st.session_state["url_data2"] = yturl
                 st.session_state.pop("pdf_data", None)
