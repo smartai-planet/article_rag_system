@@ -444,6 +444,10 @@ def streamlit_app():
                     for f in uploaded_files:
                         if f.name not in existing_names:
                             st.session_state.all_files.append(f)
+                    st.session_state["active_source"] = "pdf"
+                    st.session_state["pdf_data"] = uploaded_files
+                    st.session_state.pop("url_data1", None)  # clear the other
+                    st.session_state.pop("url_data2", None)
         
                 st.write(f"Total files collected so far: {len(st.session_state.all_files)}")
                 for f in st.session_state.all_files:
@@ -471,13 +475,17 @@ def streamlit_app():
 
         elif tab2.open:
             with tab2:
-                url = st.text_input("Enter Web URL", placeholder="https://github.com/ikenna-oluigbo")
+                weburl = st.text_input("Enter Web URL", placeholder="https://github.com/ikenna-oluigbo")
 
-                if url: 
+                if weburl: 
                     existing_names = [get_urlname(f) for f in st.session_state.all_files]
-                    for f in url:
+                    for f in weburl:
                         if get_urlname(f) not in existing_names:
                             st.session_state.all_files.append(f)
+                    st.session_state["active_source"] = "weburl"
+                    st.session_state["url_data1"] = weburl
+                    st.session_state.pop("pdf_data", None)
+                    st.session_state.pop("url_data2", None)
                             
                 st.write(f"{len(st.session_state.all_files)} link uploaded")
                 for f in st.session_state.all_files:
@@ -503,13 +511,17 @@ def streamlit_app():
                 
         else: #tab3.open:
             with tab3:
-                url = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
+                yturl = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
 
-                if url: 
+                if yturl: 
                     existing_names = [get_urlname(f) for f in st.session_state.all_files]
-                    for f in url:
+                    for f in yturl:
                         if get_urlname(f) not in existing_names:
                             st.session_state.all_files.append(f)
+                st.session_state["active_source"] = "yturl"
+                st.session_state["url_data2"] = yturl
+                st.session_state.pop("pdf_data", None)
+                st.session_state.pop("url_data1", None)
                             
                 st.write(f"{len(st.session_state.all_files)} link uploaded")
                 for f in st.session_state.all_files:
