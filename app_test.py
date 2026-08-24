@@ -427,7 +427,7 @@ def streamlit_app():
             st.session_state.done_uploading = False 
             
 
-        tab1, tab2, tab3 = st.tabs(["📁 Upload PDF File", "🔗 From Web URL", "🔗 From Youtube URL"])
+        tab1, tab2, tab3 = st.tabs(["📁 Upload PDF File", "🔗 From Web URL", "🔗 From Youtube URL"], on_change="rerun")
 
         if tab1.open:
             with tab1:
