@@ -119,9 +119,10 @@ def move_to_permanent_storage(session_dir: Path):
 
 #Extract name from URL
 def get_urlname(url):
-    path_string = urlsplit(url).path
-    p = Path(path_string)
-    return p.name
+    # path_string = urlsplit(url).path
+    # p = Path(path_string)  #return p.name
+    path_string = urlsplit(url).netloc
+    return path_string
 
 
 def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap: int = 150):
@@ -516,10 +517,10 @@ def streamlit_app():
                 yturl = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
 
                 if yturl: 
-                    # existing_names = [get_urlname(f) for f in st.session_state.all_files]
-                    # for f in yturl:
-                    #     if get_urlname(f) not in existing_names:
-                    st.session_state.all_files.append(f)
+                    existing_names = [get_urlname(f) for f in st.session_state.all_files]
+                    for f in yturl:
+                        if get_urlname(f) not in existing_names:
+                            st.session_state.all_files.append(f)
                 st.session_state["active_source"] = "yturl"
                 st.session_state["url_data2"] = yturl
                 st.session_state.pop("pdf_data", None)
