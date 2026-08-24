@@ -121,8 +121,8 @@ def move_to_permanent_storage(session_dir: Path):
 def get_urlname(url):
     # path_string = urlsplit(url).path
     # p = Path(path_string)  #return p.name
-    path_string = urlsplit(url).netloc
-    return path_string
+    path_string = urlsplit(url).path
+    return path_string.lstrip("/").rstrip("/")
 
 
 def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap: int = 150):
