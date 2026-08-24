@@ -24,7 +24,7 @@ from langchain_community.document_loaders.parsers.audio import OpenAIWhisperPars
 from langchain_community.document_loaders.blob_loaders.youtube_audio import YoutubeAudioLoader   
 from langchain_community.document_loaders import WebBaseLoader   
 
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 #from pathlib import Path
 
 
@@ -119,7 +119,9 @@ def move_to_permanent_storage(session_dir: Path):
 
 #Extract name from URL
 def get_urlname(url):
-    return Path(urlparse(url).path).name
+    path_string = urlsplit(url).path
+    p = Path(path_string)
+    return p.name
 
 
 def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap: int = 150):
