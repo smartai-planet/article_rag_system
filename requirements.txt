@@ -6,3 +6,8 @@ pandas==2.3.3
 streamlit==1.59.2
 requests==2.34.2
 streamlit-js-eval==1.0.0
+
+langchain-community==0.4.2
+langchain==1.3.16
+pydub==0.25.1
+yt-dlp==2026.8.19
