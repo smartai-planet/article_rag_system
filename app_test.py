@@ -19,9 +19,7 @@ import shutil
 import uuid
 from pathlib import Path
 
-from langchain_community.document_loaders.generic import GenericLoader   
-from langchain_community.document_loaders.parsers.audio import OpenAIWhisperParser   
-from langchain_community.document_loaders.blob_loaders.youtube_audio import YoutubeAudioLoader   
+from langchain_community.document_loaders import YoutubeLoader  
 from langchain_community.document_loaders import WebBaseLoader   
 
 from urllib.parse import urlsplit
@@ -546,10 +544,7 @@ def streamlit_app():
                 os.makedirs(save_dir_yt, exist_ok=True)
                 # for file_path in session_dir.iterdir():
                 # st.write(f"Analyzing: {get_urlname(file_path)}")
-                yloader = GenericLoader(
-                        YoutubeAudioLoader([yturl], save_dir_yt),
-                        OpenAIWhisperParser()
-                    )
+                yloader = YoutubeLoader.from_youtube_url(yturl, add_video_info=False)
                 yvid = yloader.load()[0].page_content
                 
                 chunks = make_chunks_url(texts=yvid, url_file=yturl, chunk_size=500, chunk_overlap=150)
