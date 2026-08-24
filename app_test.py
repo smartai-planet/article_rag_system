@@ -554,7 +554,6 @@ def streamlit_app():
                     all_documents.extend(chunks)
 
                     all_titles.append(get_urlname(file_path))
-                shutil.rmtree("./youtube/")
             
 
         if st.button("Done Uploading"):
