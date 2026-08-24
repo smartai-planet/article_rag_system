@@ -501,7 +501,7 @@ def streamlit_app():
                     all_titles.append(get_urlname(file_path))
                     
                 
-        else tab3.open:
+        else: #tab3.open:
             with tab3:
                 url = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
 
