@@ -555,7 +555,7 @@ def streamlit_app():
                 chunks = make_chunks_url(texts=yvid, url_file=yturl, chunk_size=500, chunk_overlap=150)
                 all_documents.extend(chunks)
 
-                all_titles.append(get_urlname(file_path))
+                all_titles.append(get_urlname(yturl))
             
 
         if st.button("Done Uploading"):
