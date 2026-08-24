@@ -516,10 +516,10 @@ def streamlit_app():
                 yturl = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
 
                 if yturl: 
-                    existing_names = [get_urlname(f) for f in st.session_state.all_files]
-                    for f in yturl:
-                        if get_urlname(f) not in existing_names:
-                            st.session_state.all_files.append(f)
+                    # existing_names = [get_urlname(f) for f in st.session_state.all_files]
+                    # for f in yturl:
+                    #     if get_urlname(f) not in existing_names:
+                    st.session_state.all_files.append(f)
                 st.session_state["active_source"] = "yturl"
                 st.session_state["url_data2"] = yturl
                 st.session_state.pop("pdf_data", None)
