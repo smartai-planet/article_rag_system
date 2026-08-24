@@ -530,32 +530,32 @@ def streamlit_app():
                 # for f in st.session_state.all_files:
                 #     st.write(f"- {get_urlname(f)}")
 
-                for link in st.session_state.all_files:
-                    # save_path = session_dir / get_urlname(link)
-                    save_path = session_dir / yturl
-                    # yloader = GenericLoader(
-                    #         YoutubeAudioLoader([link], save_path),
-                    #         OpenAIWhisperParser()
-                    #     )
-                    # with open(save_path, "wb") as f:
-                    #     f.write(yloader)
-                st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
+                # for link in st.session_state.all_files:
+                #     # save_path = session_dir / get_urlname(link)
+                #     save_path = session_dir / yturl
+                #     # yloader = GenericLoader(
+                #     #         YoutubeAudioLoader([link], save_path),
+                #     #         OpenAIWhisperParser()
+                #     #     )
+                #     # with open(save_path, "wb") as f:
+                #     #     f.write(yloader)
+                # st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
 
                 all_titles = list() 
                 save_dir_yt = "./youtube/"
                 os.makedirs(save_dir_yt, exist_ok=True)
-                for file_path in session_dir.iterdir():
-                    st.write(f"Analyzing: {get_urlname(file_path)}")
-                    yloader = GenericLoader(
-                            YoutubeAudioLoader([file_path], save_dir_yt),
-                            OpenAIWhisperParser()
-                        )
-                    yvid = yloader.load()[0].page_content
-                    
-                    chunks = make_chunks_url(texts=yvid, url_file=file_path, chunk_size=500, chunk_overlap=150)
-                    all_documents.extend(chunks)
+                # for file_path in session_dir.iterdir():
+                # st.write(f"Analyzing: {get_urlname(file_path)}")
+                yloader = GenericLoader(
+                        YoutubeAudioLoader([yturl], save_dir_yt),
+                        OpenAIWhisperParser()
+                    )
+                yvid = yloader.load()[0].page_content
+                
+                chunks = make_chunks_url(texts=yvid, url_file=yturl, chunk_size=500, chunk_overlap=150)
+                all_documents.extend(chunks)
 
-                    all_titles.append(get_urlname(file_path))
+                all_titles.append(get_urlname(file_path))
             
 
         if st.button("Done Uploading"):
