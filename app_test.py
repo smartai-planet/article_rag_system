@@ -131,23 +131,28 @@ def get_urlname(url):
     # return path_string.l`    1strip("/").rstrip("/")
 
 
-def process_link(url: str) -> str:
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    )
+}
 
-        response = requests.get(url, timeout=15)
-        response.raise_for_status()
-    
-        content_type = response.headers.get("Content-Type", "")
-    
-        if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
-            # Handle PDF content
-            reader = PdfReader(BytesIO(response.content))
-            text = "\n".join(page.extract_text() or "" for page in reader.pages)
-        else:
-            # Handle HTML content
-            soup = BeautifulSoup(response.text, "html.parser")
-            text = soup.get_text(separator="\n", strip=True)
-    
-        return text
+def process_link(url: str) -> str:
+    response = requests.get(url, headers=HEADERS, timeout=15)
+    response.raise_for_status()
+
+    content_type = response.headers.get("Content-Type", "")
+
+    if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
+        reader = PdfReader(BytesIO(response.content))
+        text = "\n".join(page.extract_text() or "" for page in reader.pages)
+    else:
+        soup = BeautifulSoup(response.text, "html.parser")
+        text = soup.get_text(separator="\n", strip=True)
+
+    return text
 
 
 def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap: int = 150):
