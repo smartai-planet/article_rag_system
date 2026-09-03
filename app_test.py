@@ -528,7 +528,7 @@ def streamlit_app():
 
                 all_titles = list() 
                 # for file_path in session_dir.iterdir():
-                for link in st.session_state.all_files
+                for link in st.session_state.all_files:
                     # st.write(f"Analyzing: {get_urlname(file_path)}")
                     st.write(f"Analyzing: {link}")
                     urlfile = process_link(link)
