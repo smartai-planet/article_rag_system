@@ -523,7 +523,7 @@ def streamlit_app():
                     # save_path = session_dir / get_urlname(link)
                     save_path = session_dir / st.session_state.session_id
                     with open(save_path, "wb") as f:
-                        f.write(process_link(link))
+                        f.write(link.encode())
                 st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
 
                 all_titles = list() 
