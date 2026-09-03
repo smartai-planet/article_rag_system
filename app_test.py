@@ -189,11 +189,21 @@ def process_link(url: str) -> str | None:
     return text
 
 
-def make_chunks_url(texts : str, chunk_size: int = 500, chunk_overlap: int = 150):
+def make_chunks_url(texts : str, urllink, chunk_size: int = 500, chunk_overlap: int = 150):
+
+    chunks = []
+    
     text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size, chunk_overlap=chunk_overlap, separators=["\n\n", "\n", " ", ""]
         )
-    chunks = text_splitter.create_documents(texts)
+    chunk = text_splitter.create_documents(texts)
+
+    chunks.append(
+            {"id" : str(uuid.uuid4()),
+             "text" : chunk,
+             "metadata" : {"source": urllink}
+             }
+        )
     
     return chunks
     
@@ -550,7 +560,7 @@ def streamlit_app():
                     # urldata = urlfile.load()[0].page_content
                     # st.write(urlfile[:50])
                     
-                    chunks = make_chunks_url(texts=urlfile, chunk_size=500, chunk_overlap=150)
+                    chunks = make_chunks_url(texts=urlfile, get_urlname(link), chunk_size=500, chunk_overlap=150)
                     all_documents.extend(chunks)
 
                     all_titles.append(get_urlname(link))
