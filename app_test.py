@@ -136,21 +136,42 @@ HEADERS = {
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/124.0.0.0 Safari/537.36"
-    )
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
 }
 
-def process_link(url: str) -> str:
-    response = requests.get(url, headers=HEADERS, timeout=15)
-    response.raise_for_status()
+
+def process_link(url: str) -> str | None:
+    """Fetch a URL and return extracted text, or None if it fails."""
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        print(f"[HTTP error] {url} -> {e}")
+        return None
+    except requests.exceptions.Timeout:
+        print(f"[Timeout] {url}")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"[Request failed] {url} -> {e}")
+        return None
 
     content_type = response.headers.get("Content-Type", "")
 
-    if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
-        reader = PdfReader(BytesIO(response.content))
-        text = "\n".join(page.extract_text() or "" for page in reader.pages)
-    else:
-        soup = BeautifulSoup(response.text, "html.parser")
-        text = soup.get_text(separator="\n", strip=True)
+    try:
+        if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
+            reader = PdfReader(BytesIO(response.content))
+            text = "\n".join(page.extract_text() or "" for page in reader.pages)
+        else:
+            text = trafilatura.extract(response.text) or ""
+    except Exception as e:
+        print(f"[Extraction failed] {url} -> {e}")
+        return None
+
+    if not text.strip():
+        print(f"[No text extracted] {url}")
+        return None
 
     return text
 
