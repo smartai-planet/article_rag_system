@@ -30,6 +30,7 @@ import requests
 from io import BytesIO
 from pypdf import PdfReader
 from bs4 import BeautifulSoup
+import trafilatura
 
 
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
@@ -142,17 +143,29 @@ HEADERS = {
 }
 
 
+def extract_pdf_text(content: bytes) -> str:
+    reader = PdfReader(BytesIO(content))
+    return "\n".join(page.extract_text() or "" for page in reader.pages)
+
+
+def extract_html_text(content: bytes) -> str:
+    # Try trafilatura first (pass raw bytes, not .text — avoids the NoneType bug)
+    try:
+        text = trafilatura.extract(content)
+        if text and text.strip():
+            return text
+    except Exception as e:
+        print(f"[trafilatura failed, falling back] {e}")
+
+    # Fallback: BeautifulSoup
+    soup = BeautifulSoup(content, "html.parser")
+    return soup.get_text(separator="\n", strip=True)
+
+
 def process_link(url: str) -> str | None:
-    """Fetch a URL and return extracted text, or None if it fails."""
     try:
         response = requests.get(url, headers=HEADERS, timeout=15)
         response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        print(f"[HTTP error] {url} -> {e}")
-        return None
-    except requests.exceptions.Timeout:
-        print(f"[Timeout] {url}")
-        return None
     except requests.exceptions.RequestException as e:
         print(f"[Request failed] {url} -> {e}")
         return None
@@ -161,15 +174,14 @@ def process_link(url: str) -> str | None:
 
     try:
         if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
-            reader = PdfReader(BytesIO(response.content))
-            text = "\n".join(page.extract_text() or "" for page in reader.pages)
+            text = extract_pdf_text(response.content)
         else:
-            text = trafilatura.extract(response.text) or ""
+            text = extract_html_text(response.content)
     except Exception as e:
         print(f"[Extraction failed] {url} -> {e}")
         return None
 
-    if not text.strip():
+    if not text or not text.strip():
         print(f"[No text extracted] {url}")
         return None
 
