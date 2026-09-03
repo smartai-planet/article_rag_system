@@ -559,11 +559,11 @@ def streamlit_app():
                     urlfile = process_link(link)
                     # urldata = urlfile.load()[0].page_content
                     # st.write(urlfile[:50])
-                    
-                    chunks = make_chunks_url(texts=urlfile, get_urlname(link), chunk_size=500, chunk_overlap=150)
+                    urlname = get_urlname(link)
+                    chunks = make_chunks_url(texts=urlfile, urlname, chunk_size=500, chunk_overlap=150)
                     all_documents.extend(chunks)
 
-                    all_titles.append(get_urlname(link))
+                    all_titles.append(urlname)
                     
                 
         else: #tab3.open:
