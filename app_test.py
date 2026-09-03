@@ -547,8 +547,8 @@ def streamlit_app():
                 for link in st.session_state.all_files:
                     # save_path = session_dir / get_urlname(link)
                     save_path = session_dir / st.session_state.session_id
-                    with open(save_path, "wb") as f:
-                        f.write(link.encode())
+                    # with open(save_path, "wb") as f:
+                    #     f.write(link.encode())
                 st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
 
                 all_titles = list() 
@@ -566,7 +566,7 @@ def streamlit_app():
                     all_titles.append(urlname)
                     
                 
-        else: #tab3.open:
+        elif tab3.open:
             with tab3:
                 yturl = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
 
