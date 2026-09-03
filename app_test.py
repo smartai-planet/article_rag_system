@@ -20,10 +20,16 @@ import uuid
 from pathlib import Path
 
 from langchain_community.document_loaders import YoutubeLoader  
-from langchain_community.document_loaders import WebBaseLoader   
+# from langchain_community.document_loaders import WebBaseLoader   
 
 from urllib.parse import urlsplit
 #from pathlib import Path
+
+import re
+import requests
+from io import BytesIO
+from pypdf import PdfReader
+from bs4 import BeautifulSoup
 
 
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
@@ -120,7 +126,28 @@ def get_urlname(url):
     # path_string = urlsplit(url).path
     # p = Path(path_string)  #return p.name
     path_string = urlsplit(url).path
-    return path_string.lstrip("/").rstrip("/")
+    path_string = re.findall(r"[^/]+")
+    return path_string
+    # return path_string.lstrip("/").rstrip("/")
+
+
+def process_link(url: str) -> str:
+
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
+    
+        content_type = response.headers.get("Content-Type", "")
+    
+        if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
+            # Handle PDF content
+            reader = PdfReader(BytesIO(response.content))
+            text = "\n".join(page.extract_text() or "" for page in reader.pages)
+        else:
+            # Handle HTML content
+            soup = BeautifulSoup(response.text, "html.parser")
+            text = soup.get_text(separator="\n", strip=True)
+    
+        return text
 
 
 def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap: int = 150):
@@ -146,7 +173,7 @@ def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap:
         chunks.append(
             {"id" : str(uuid.uuid4()),
              "text" : chunk,
-             "metadata" : {"source": get_urlname(url)}
+             "metadata" : {"source": get_urlname(url_file)}
              }
         )
         
@@ -495,16 +522,16 @@ def streamlit_app():
                 for link in st.session_state.all_files:
                     save_path = session_dir / get_urlname(link)
                     with open(save_path, "wb") as f:
-                        f.write(WebBaseLoader(link))
+                        f.write(process_link(link))
                 st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
 
                 all_titles = list() 
                 for file_path in session_dir.iterdir():
                     st.write(f"Analyzing: {get_urlname(file_path)}")
-                    urlfile = WebBaseLoader(file_path)
-                    urldata = urlfile.load()[0].page_content
+                    urlfile = process_link(file_path)
+                    # urldata = urlfile.load()[0].page_content
                     
-                    chunks = make_chunks_url(texts=urldata, url_file=file_path, chunk_size=500, chunk_overlap=150)
+                    chunks = make_chunks_url(texts=urlfile, url_file=file_path, chunk_size=500, chunk_overlap=150)
                     all_documents.extend(chunks)
 
                     all_titles.append(get_urlname(file_path))
