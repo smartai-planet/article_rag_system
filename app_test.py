@@ -533,7 +533,7 @@ def streamlit_app():
                     st.write(f"Analyzing: {link}")
                     urlfile = process_link(link)
                     # urldata = urlfile.load()[0].page_content
-                    st.write(urlfile[:50])
+                    # st.write(urlfile[:50])
                     
                     chunks = make_chunks_url(texts=urlfile, url_file=link, chunk_size=500, chunk_overlap=150)
                     all_documents.extend(chunks)
