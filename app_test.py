@@ -173,7 +173,7 @@ def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap:
         chunks.append(
             {"id" : str(uuid.uuid4()),
              "text" : chunk,
-             "metadata" : {"source": get_urlname(url_file)}
+             # "metadata" : {"source": get_urlname(url_file)}
              }
         )
         
@@ -535,7 +535,7 @@ def streamlit_app():
                     # urldata = urlfile.load()[0].page_content
                     # st.write(urlfile[:50])
                     
-                    chunks = make_chunks_url(texts=urlfile, url_file=link, chunk_size=500, chunk_overlap=150)
+                    chunks = make_chunks_url(texts=urlfile, chunk_size=500, chunk_overlap=150)
                     all_documents.extend(chunks)
 
                     all_titles.append(get_urlname(link))
