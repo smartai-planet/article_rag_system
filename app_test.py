@@ -520,21 +520,24 @@ def streamlit_app():
                 #     st.write(f"- {get_urlname(f)}")
 
                 for link in st.session_state.all_files:
-                    save_path = session_dir / get_urlname(link)
+                    # save_path = session_dir / get_urlname(link)
+                    save_path = session_dir / st.session_state.session_id
                     with open(save_path, "wb") as f:
                         f.write(process_link(link))
                 st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
 
                 all_titles = list() 
-                for file_path in session_dir.iterdir():
-                    st.write(f"Analyzing: {get_urlname(file_path)}")
-                    urlfile = process_link(file_path)
+                # for file_path in session_dir.iterdir():
+                for link in st.session_state.all_files
+                    # st.write(f"Analyzing: {get_urlname(file_path)}")
+                    st.write(f"Analyzing: {link}")
+                    urlfile = process_link(link)
                     # urldata = urlfile.load()[0].page_content
                     
-                    chunks = make_chunks_url(texts=urlfile, url_file=file_path, chunk_size=500, chunk_overlap=150)
+                    chunks = make_chunks_url(texts=urlfile, url_file=link, chunk_size=500, chunk_overlap=150)
                     all_documents.extend(chunks)
 
-                    all_titles.append(get_urlname(file_path))
+                    all_titles.append(get_urlname(link))
                     
                 
         else: #tab3.open:
