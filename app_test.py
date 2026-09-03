@@ -540,15 +540,15 @@ def streamlit_app():
                     st.session_state.pop("pdf_data", None)
                     st.session_state.pop("url_data2", None)
                             
-                st.write(f"{len(st.session_state.all_files)} link uploaded")
+                    st.write(f"{len(st.session_state.all_files)} link uploaded")
                 # for f in st.session_state.all_files:
                 #     st.write(f"- {get_urlname(f)}")
 
-                for link in st.session_state.all_files:
+                # for link in st.session_state.all_files:
                     # save_path = session_dir / get_urlname(link)
                     save_path = session_dir / st.session_state.session_id
-                    # with open(save_path, "wb") as f:
-                    #     f.write(link.encode())
+                    with open(save_path, "wb") as f:
+                        f.write(link.encode())
                 st.success(f"Saved {len(st.session_state.all_files)} file(s) to your private session folder.")
 
                 all_titles = list() 
