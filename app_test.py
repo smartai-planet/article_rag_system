@@ -125,10 +125,10 @@ def move_to_permanent_storage(session_dir: Path):
 def get_urlname(url):
     # path_string = urlsplit(url).path
     # p = Path(path_string)  #return p.name
-    path_string = urlsplit(url).path
-    path_string = re.findall(r"[^/]+")
+    pathurl = urlsplit(url).path
+    path_string = re.findall(r"[^/]+", pathurl)
     return path_string
-    # return path_string.lstrip("/").rstrip("/")
+    # return path_string.l`    1strip("/").rstrip("/")
 
 
 def process_link(url: str) -> str:
