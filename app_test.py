@@ -506,10 +506,10 @@ def streamlit_app():
                 weburl = st.text_input("Enter Web URL", placeholder="https://github.com/ikenna-oluigbo")
 
                 if weburl: 
-                    existing_names = [get_urlname(f) for f in st.session_state.all_files]
-                    for f in weburl:
-                        if get_urlname(f) not in existing_names:
-                            st.session_state.all_files.append(f)
+                    # existing_names = [get_urlname(f) for f in st.session_state.all_files]
+                    # for f in weburl:
+                    #     if get_urlname(f) not in existing_names:
+                    st.session_state.all_files.append(weburl)
                     st.session_state["active_source"] = "weburl"
                     st.session_state["url_data1"] = weburl
                     st.session_state.pop("pdf_data", None)
