@@ -189,7 +189,7 @@ def process_link(url: str) -> str | None:
     return text
 
 
-def make_chunks_url(texts : str, urllink, chunk_size: int = 500, chunk_overlap: int = 150):
+def make_chunks_url(texts : str, chunk_size: int = 500, chunk_overlap: int = 150, urllink):
 
     chunks = []
     
@@ -560,7 +560,7 @@ def streamlit_app():
                     # urldata = urlfile.load()[0].page_content
                     # st.write(urlfile[:50])
                     urlname = get_urlname(link)
-                    chunks = make_chunks_url(texts=urlfile, urlname, chunk_size=500, chunk_overlap=150)
+                    chunks = make_chunks_url(texts=urlfile, chunk_size=500, chunk_overlap=150, urlname)
                     all_documents.extend(chunks)
 
                     all_titles.append(urlname)
