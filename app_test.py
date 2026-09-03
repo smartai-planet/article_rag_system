@@ -176,7 +176,7 @@ def process_link(url: str) -> str | None:
     return text
 
 
-def make_chunks_url(texts : str, url_file, chunk_size: int = 500, chunk_overlap: int = 150):
+def make_chunks_url(texts : str, chunk_size: int = 500, chunk_overlap: int = 150):
     chunks = []
     start = 0
     while start < len(texts):
