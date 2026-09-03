@@ -21,6 +21,7 @@ from pathlib import Path
 
 from langchain_community.document_loaders import YoutubeLoader  
 # from langchain_community.document_loaders import WebBaseLoader   
+from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
 
 from urllib.parse import urlsplit
 #from pathlib import Path
@@ -189,38 +190,14 @@ def process_link(url: str) -> str | None:
 
 
 def make_chunks_url(texts : str, chunk_size: int = 500, chunk_overlap: int = 150):
-    chunks = []
-    start = 0
-    while start < len(texts):
-        end = start + chunk_size
-        
-        #If not beginning from start, include overlap
-        if start > 0:
-            start = start - chunk_overlap
-        
-        chunk = texts[start:end]
-        
-        #Try to break at end of sentence to preserve full paragraph context
-        if end < len(texts):
-            last_period = chunk.rfind(".")
-            if last_period != -1:
-                chunk = chunk[ : last_period + 1]
-                end = start + last_period + 1
-                
-        
-        chunks.append(
-            {"id" : str(uuid.uuid4()),
-             "text" : chunk,
-             # "metadata" : {"source": get_urlname(url_file)}
-             }
+    text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size, chunk_overlap=chunk_overlap, separators=["\n\n", "\n", " ", ""]
         )
-        
-        start = end
+    chunks = text_splitter.create_documents(texts)
     
     return chunks
     
     
-
 # Function to split text
 def make_chunks(texts : str, pdf_file, chunk_size: int = 1000, chunk_overlap: int = 200):
     """Splitting the texts into chunks"""
