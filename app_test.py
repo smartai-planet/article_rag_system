@@ -526,7 +526,7 @@ def streamlit_app():
                     t = read_pdf_title(file_path)
                     all_titles.append(t)
 
-        elif tab2.open:
+        if tab2.open:
             with tab2:
                 weburl = st.text_input("Enter Web URL", placeholder="https://github.com/ikenna-oluigbo")
 
@@ -566,7 +566,7 @@ def streamlit_app():
                     all_titles.append(urlname)
                     
                 
-        elif tab3.open:
+        if tab3.open:
             with tab3:
                 yturl = st.text_input("Enter YouTube URL", placeholder="https://github.com/ikenna-oluigbo")
 
