@@ -75,6 +75,20 @@ class LLMModel:
         except Exception as e:
             return f"Error generating content: {str(e)}"
  
+    def stream_completion(self, messages):
+        """Generator that yields the response text piece by piece."""
+        try:
+            stream = self.client.chat.completions.create(
+                messages=messages,
+                model=self.model_name,
+                stream=True,
+            )
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            yield f"Error generating content: {str(e)}"
+ 
  
 class EmbeddingModel:
     def __init__(self, model_type="openai"):
@@ -317,11 +331,13 @@ general knowledge.
  
  
 def rag_pipeline(query, collection, llm_model, top_k=5):
-    """Takes the RAW user query (it is augmented here, once)."""
+    """Takes the RAW user query (it is augmented here, once).
+    Retrieval happens immediately; the returned `stream` is a generator
+    that yields the LLM's answer as it is produced."""
     relevant_chunks, metadatas = find_related_chunks(query, collection, top_k)
     prompt = augment_prompt(query, relevant_chunks)
  
-    response = llm_model.generate_completion(
+    stream = llm_model.stream_completion(
         [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt},
@@ -329,7 +345,7 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
     )
  
     references = list(zip(relevant_chunks, metadatas))
-    return response, references, prompt
+    return stream, references, prompt
  
  
 # --------------------------------------------------------------------------
@@ -591,20 +607,22 @@ def streamlit_app():
             st.text("All Images Processed Successfully! 😎")
  
         else:
-            with st.spinner("Processing your query..."):
-                response, references, prompt = rag_pipeline(
+            with st.spinner("Searching your documents..."):
+                stream, references, prompt = rag_pipeline(
                     query, st.session_state.collection, llm_model
                 )
  
             col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("### 🤖 Response")
-                st.write_stream(response)
-                  
+ 
+            # Fill the references column first so it is visible while the answer streams
             with col2:
                 st.markdown("### 📖 References Used")
                 for doc, meta in references:
                     st.write(f"- **{meta.get('source', 'unknown')}**: {doc}")
+ 
+            with col1:
+                st.markdown("### 🤖 Response")
+                st.write_stream(stream)
  
             with st.expander("🔍 Technical Details", expanded=False):
                 st.markdown("#### Augmented Prompt")
