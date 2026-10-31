@@ -1,5 +1,3 @@
-Claude
-Rag app · PY
 # Importing Libraries
 import re
 import shutil
