@@ -603,7 +603,7 @@ def streamlit_app():
                 #st.write(response)
                 result = ""
                 for res in response:
-                    result += res.choices[0].delta.content ot " "
+                    result += res.choices[0].delta.content or " "
                     yield result
                   
             with col2:
