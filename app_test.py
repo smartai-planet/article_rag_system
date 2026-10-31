@@ -600,11 +600,7 @@ def streamlit_app():
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("### 🤖 Response")
-                #st.write(response)
-                result = ""
-                for res in response:
-                    result += res.choices[0].delta.content or " "
-                    yield result
+                st.write_stream(response)
                   
             with col2:
                 st.markdown("### 📖 References Used")
