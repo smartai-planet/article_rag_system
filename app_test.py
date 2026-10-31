@@ -325,8 +325,7 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
         [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt},
-        ], 
-        stream = True
+        ]
     )
  
     references = list(zip(relevant_chunks, metadatas))
