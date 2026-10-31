@@ -325,7 +325,8 @@ def rag_pipeline(query, collection, llm_model, top_k=5):
         [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt},
-        ]
+        ], 
+        stream = True
     )
  
     references = list(zip(relevant_chunks, metadatas))
@@ -599,8 +600,12 @@ def streamlit_app():
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("### 🤖 Response")
-                st.write(response)
- 
+                #st.write(response)
+                result = ""
+                for res in response:
+                    result += res.choices[0].delta.content ot " "
+                    yield result
+                  
             with col2:
                 st.markdown("### 📖 References Used")
                 for doc, meta in references:
