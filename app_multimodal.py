@@ -60,7 +60,7 @@ class LLMModel:
         self.model_type = model_type
         if model_type == "openai":
             self.client = OpenAI(api_key=OPENAI_API_KEY)
-            self.model_name = "gpt-5.4"
+            self.model_name = "gpt-6-luna"
         else:
             self.client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
             self.model_name = "llava"
