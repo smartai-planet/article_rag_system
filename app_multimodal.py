@@ -408,8 +408,8 @@ def streamlit_app():
     </style>
     <div class="footer">
         <p>
-            Developed by
-            <a href="https://github.com/ikenna-oluigbo/" target="_blank">Ikenna Oluigbo (PhD).</a>
+            Developed for: 
+            <a href="https://github.com/ikenna-oluigbo/" target="_blank">Smart Article 2026.</a>
             Drop a feedback!
         </p>
     </div>
