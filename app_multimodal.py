@@ -393,7 +393,7 @@ def streamlit_app():
     )
  
     if Path("./llm_bot.jpg").exists():
-        st.sidebar.image("./llm_bot.jpg")
+        st.sidebar.image("llm_bot.jpg")
  
     # ---- Footer ----
     footer = """
