@@ -392,7 +392,7 @@ def streamlit_app():
         f"- Dimensions: {EMBEDDING_INFO[embedding_type]['dimensions']}"
     )
  
-    if Path("./llm_bot.jpg").exists():
+    if Path("llm_bot.jpg").exists():
         st.sidebar.image("llm_bot.jpg")
  
     # ---- Footer ----
